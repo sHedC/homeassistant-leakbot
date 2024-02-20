@@ -1,47 +1,123 @@
-# Notice
+# Leakbot
+[![License][license-shield]](LICENSE)
+![Project Maintenance][maintenance-shield]
+[![GitHub Activity][commits-shield]][commits]
 
-The component and platforms in this repository are not meant to be used by a
-user, but as a "blueprint" that custom component developers can build
-upon, to make more awesome stuff.
+[![hacs][hacsbadge]][hacs]
+[![Discord][discord-shield]][discord]
+[![Community Forum][forum-shield]][forum]
+[![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
 
-HAVE FUN! 😎
+Stable -
+[![GitHub Release][stable-release-shield]][releases]
+[![workflow-release]][workflows-release]
+[![codecov][codecov-shield]][codecov-link]
 
-## Why?
+Latest -
+[![GitHub Release][latest-release-shield]][releases]
+[![workflow-lastest]][workflows]
+[![issues][issues-shield]][issues-link]
 
-This is simple, by having custom_components look (README + structure) the same
-it is easier for developers to help each other and for users to start using them.
 
-If you are a developer and you want to add things to this "blueprint" that you think more
-developers will have use for, please open a PR to add it :)
+> :warning: **Leakbot Not Ready:** Leakbot integraiton is not ready will not work, come back for further updates or watch the forum: https://community.home-assistant.io/t/leakbot-integration/256340/9
 
-## What?
+## About the Integration
+![leakbot][leakbotimg]
 
-This repository contains multiple files, here is a overview:
+An integration for homeassistant (via HACS) to connect to Leakbot via the leakbot cloud api.
 
-File | Purpose | Documentation
--- | -- | --
-`.devcontainer.json` | Used for development/testing with Visual Studio Code. | [Documentation](https://code.visualstudio.com/docs/remote/containers)
-`.github/ISSUE_TEMPLATE/*.yml` | Templates for the issue tracker | [Documentation](https://help.github.com/en/github/building-a-strong-community/configuring-issue-templates-for-your-repository)
-`.vscode/tasks.json` | Tasks for the devcontainer. | [Documentation](https://code.visualstudio.com/docs/editor/tasks)
-`custom_components/integration_blueprint/*` | Integration files, this is where everything happens. | [Documentation](https://developers.home-assistant.io/docs/creating_component_index)
-`CONTRIBUTING.md` | Guidelines on how to contribute. | [Documentation](https://help.github.com/en/github/building-a-strong-community/setting-guidelines-for-repository-contributors)
-`LICENSE` | The license file for the project. | [Documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository)
-`README.md` | The file you are reading now, should contain info about the integration, installation and configuration instructions. | [Documentation](https://help.github.com/en/github/writing-on-github/basic-writing-and-formatting-syntax)
-`requirements.txt` | Python packages used for development/lint/testing this integration. | [Documentation](https://pip.pypa.io/en/stable/user_guide/#requirements-files)
+NOTES:
+- TBC
 
-## How?
+## Installation
+The preferred and easiest way to install this is from the Home Assistant Community Store (HACS).  Follow the link in the badge above for details on HACS.
 
-1. Create a new repository in GitHub, using this repository as a template by clicking the "Use this template" button in the GitHub UI.
-1. Open your new repository in Visual Studio Code devcontainer (Preferably with the "`Dev Containers: Clone Repository in Named Container Volume...`" option).
-1. Rename all instances of the `integration_blueprint` to `custom_components/<your_integration_domain>` (e.g. `custom_components/awesome_integration`).
-1. Rename all instances of the `Integration Blueprint` to `<Your Integration Name>` (e.g. `Awesome Integration`).
-1. Run the `scripts/develop` to start HA and test out your new integration.
+Go to HACS and integraitons, then select to download Leakbot from HACS.
 
-## Next steps
+## Configuration
+Go to the Home Assistant UI, go to "Configuration" -> "Integrations" click "+" and search for "Leakbot"
+- Select the correct login version, if not sure try online directly to see which server you use.
+- Once connected you can change the refresh time in the options
 
-These are some next steps you may want to look into:
-- Add tests to your integration, [`pytest-homeassistant-custom-component`](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component) can help you get started.
-- Add brand images (logo/icon) to https://github.com/home-assistant/brands.
-- Create your first release.
-- Share your integration on the [Home Assistant Forum](https://community.home-assistant.io/).
-- Submit your integration to the [HACS](https://hacs.xyz/docs/publish/start).
+TBC
+
+#### Beta Versions
+If you want to see Beta versions open the Leakbot in HACS, after download, and click the three dots on the top right and select re-download. Here you will se an option to see beta versions.
+
+#### Debugging
+It is possible to show the info and debug logs for the Leakbot integration, to do this you need to enable logging in the configuration.yaml, example below:
+
+Logs do not remove sensitive information so careful what you share, check what you are about to share and blank identifying information.  Note the diagnostic info attempts to redact sensitive information.
+
+```
+logger:
+  default: warning
+  logs:
+    # Log for Leakbot
+    custom_components.leakbot: info
+```
+
+#### Manual Install
+To install manually, if you really want to: I won't support this.
+1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
+2. If you do not have a `custom_components` directory (folder) there, you need to create it.
+3. In the `custom_components` directory (folder) create a new folder called `leakbot`.
+4. Download _all_ the files from the `custom_components/leakbot/` directory (folder) in this repository.
+5. Place the files you downloaded in the new directory (folder) you created.
+6. Restart Home Assistant
+7. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "Leakbot"
+
+## Example HASS View
+TBC
+
+## Automation
+TBC
+
+## Sensor Details
+TBC
+
+## Development Envionrment
+I have set this up to be able to run development or testing using Visual Studio Code with Docker or Podman in line with the integration blueprint.
+
+To setup just copy the .devcontainer-template.json to .devcontainer.json
+- If using podman uncomment the section runArgs to avoid permission issues.
+- Update BUILD_TYPE to "run" to run an instance of Home Assistant and "dev" to do development with pytest.
+
+## Contributions are welcome!
+If you want to contribute to this please read the [Contribution guidelines](CONTRIBUTING.md)
+
+Or just raise a feature request, would be useful to have a use-case, what system you have and what you want to get done.
+
+***
+
+[leakbotimg]: https://github.com/sHedC/homeassistant-leakbot/raw/main/leakbot.png
+[leakbot]: https://github.com/sHedC/homeassistant-leakbot
+[commits-shield]: https://img.shields.io/github/commit-activity/y/sHedC/homeassistant-leakbot?style=for-the-badge
+[commits]: https://github.com/shedc/homeassistant-leakbot/commits/main
+[license-shield]: https://img.shields.io/github/license/sHedC/homeassistant-leakbot.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/badge/maintainer-Richard%20Holmes%20%40shedc-blue.svg?style=for-the-badge
+
+[buymecoffee]: https://www.buymeacoffee.com/sHedC
+[buymecoffeebadge]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=for-the-badge
+
+[hacs]: https://github.com/custom-components/hacs
+[hacsbadge]: https://img.shields.io/badge/HACS-Default-orange.svg?style=for-the-badge
+[discord]: https://discord.gg/Qa5fW2R
+[discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
+[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
+[forum]: https://community.home-assistant.io/
+
+[codecov-shield]: https://codecov.io/gh/sHedC/homeassistant-leakbot/branch/main/graph/badge.svg?token=Z7VVO035GY
+[codecov-link]: https://codecov.io/gh/sHedC/homeassistant-leakbot
+
+[issues-shield]: https://img.shields.io/github/issues/shedc/homeassistant-leakbot?style=flat
+[issues-link]: https://github.com/sHedC/homeassistant-leakbot/issues
+
+[releases]: https://github.com/shedc/homeassistant-leakbot/releases
+[stable-release-shield]: https://img.shields.io/github/v/release/shedc/homeassistant-leakbot?style=flat
+[latest-release-shield]: https://img.shields.io/github/v/release/shedc/homeassistant-leakbot?include_prereleases&style=flat
+
+[workflows]: https://github.com/sHedC/homeassistant-leakbot/actions/workflows/validate.yml/badge.svg
+[workflow-lastest]: https://github.com/sHedC/homeassistant-leakbot/actions/workflows/validate.yml/badge.svg
+[workflows-release]: https://github.com/sHedC/homeassistant-leakbot/actions/workflows/release.yml/badge.svg
+[workflow-release]: https://github.com/sHedC/homeassistant-leakbot/actions/workflows/release.yml/badge.svg

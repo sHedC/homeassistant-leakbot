@@ -10,5 +10,4 @@ debugpy:
 logger:
   default: warning
   logs:
-    custom_components.mastertherm: debug
-    masterthermconnect: debug
+    custom_components.leakbot: debug
