@@ -1,0 +1,14 @@
+# https://www.home-assistant.io/integrations/default_config/
+default_config:
+
+# Enable to initiate debugging in Home Assistant Runtime
+debugpy:
+  start: false
+  wait: false
+
+# https://www.home-assistant.io/integrations/logger/
+logger:
+  default: warning
+  logs:
+    custom_components.mastertherm: debug
+    masterthermconnect: debug
