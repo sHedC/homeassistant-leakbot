@@ -13,4 +13,4 @@ jobs:
       pull-requests: write
     if: github.actor == 'dependabot[bot]'
     steps:
-      - users: hmarr/auto-approve-action@v4
+      - uses: hmarr/auto-approve-action@v4
