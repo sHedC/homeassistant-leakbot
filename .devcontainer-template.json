@@ -11,6 +11,12 @@
     "forwardPorts": [
         8123
     ],
+    "portsAttributes": {
+		"8123": {
+			"label": "localhost",
+			"protocol": "http"
+		}
+	},
     "containerEnv": {
         "BUILD_TYPE": "run"
     },
