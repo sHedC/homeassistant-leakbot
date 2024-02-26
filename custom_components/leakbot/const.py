@@ -1,9 +1,9 @@
-"""Constants for integration_blueprint."""
+"""Constants for Leakbot Integration."""
 from logging import Logger, getLogger
 
 LOGGER: Logger = getLogger(__package__)
 
-NAME = "Integration blueprint"
-DOMAIN = "integration_blueprint"
+NAME = "Leakbot"
+DOMAIN = "leakbot"
 VERSION = "0.0.0"
-ATTRIBUTION = "Data provided by http://jsonplaceholder.typicode.com/"
+ATTRIBUTION = "Data provided by https://leakbot.io"

@@ -1,12 +1,12 @@
 {
-  "domain": "integration_blueprint",
-  "name": "Integration blueprint",
+  "domain": "leakbot",
+  "name": "Leakbot",
   "codeowners": [
-    "@ludeeus"
+    "@sHedC"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/ludeeus/integration_blueprint",
+  "documentation": "https://github.com/sHedC/leakbot",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/ludeeus/integration_blueprint/issues",
+  "issue_tracker": "https://github.com/sHedC/leakbot/issues",
   "version": "0.0.0"
 }
