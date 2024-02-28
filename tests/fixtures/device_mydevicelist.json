@@ -1,0 +1,14 @@
+{
+    "IDs": [
+        {
+            "device_status": "Leak Inactive",
+            "device_type": "WIFILeakBotV3",
+            "fw_version": "3.30",
+            "id": "123456",
+            "leakbotId": "5ABCDEF",
+            "tenant_id": "123"
+        }
+    ],
+    "ts": 1708408077913,
+    "ms": 124
+}

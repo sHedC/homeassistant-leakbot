@@ -1,0 +1,18 @@
+{
+    "Addresses": [
+        {
+            "LbDevice_ID": "123456",
+            "address_1": "Address Line 1",
+            "address_2": "null",
+            "address_3": "null",
+            "city": "City",
+            "country": "Country",
+            "latitude": "55.122315",
+            "longitude": "-3.823247",
+            "postCode": "Post Code",
+            "updated": "2022-02-16 16:39:23"
+        }
+    ],
+    "ts": 1708408078287,
+    "ms": 104
+}

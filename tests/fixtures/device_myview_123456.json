@@ -1,0 +1,15 @@
+{
+    "battery_sm": "GoodBattery",
+    "device_status": "Leak Inactive",
+    "device_status_timestamp": "2022-03-19 13:10:18",
+    "first_name": "FirstName",
+    "message_frequency_sm": "HasSignal",
+    "leak_count_summary": {
+        "leak_free_days": "722",
+        "fix_leak_days": "0",
+        "paused": "0"
+    },
+    "install_environment": [],
+    "ts": 1708408078951,
+    "ms": 322
+}

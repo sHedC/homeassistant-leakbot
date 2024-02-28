@@ -1,0 +1,525 @@
+{
+    "days": [
+        {
+            "details": {
+                "morning": "10",
+                "afternoon": "9",
+                "evening": "8",
+                "night": "3",
+                "total": "30"
+            },
+            "dayNumber": "0",
+            "totalFriendly": "H",
+            "morningFriendly": "H",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "L",
+            "offset": "-2"
+        },
+        {
+            "details": {
+                "morning": "3",
+                "afternoon": "1",
+                "evening": "7",
+                "night": "4",
+                "total": "15"
+            },
+            "dayNumber": "6",
+            "totalFriendly": "M",
+            "morningFriendly": "L",
+            "afternoonFriendly": "L",
+            "eveningFriendly": "M",
+            "nightFriendly": "L",
+            "offset": "-3"
+        },
+        {
+            "details": {
+                "morning": "12",
+                "afternoon": "4",
+                "evening": "7",
+                "night": "4",
+                "total": "27"
+            },
+            "dayNumber": "5",
+            "totalFriendly": "H",
+            "morningFriendly": "H",
+            "afternoonFriendly": "L",
+            "eveningFriendly": "M",
+            "nightFriendly": "L",
+            "offset": "-4"
+        },
+        {
+            "details": {
+                "morning": "10",
+                "afternoon": "10",
+                "evening": "5",
+                "night": "3",
+                "total": "28"
+            },
+            "dayNumber": "4",
+            "totalFriendly": "H",
+            "morningFriendly": "H",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "L",
+            "offset": "-5"
+        },
+        {
+            "details": {
+                "morning": "8",
+                "afternoon": "8",
+                "evening": "7",
+                "night": "6",
+                "total": "29"
+            },
+            "dayNumber": "3",
+            "totalFriendly": "H",
+            "morningFriendly": "M",
+            "afternoonFriendly": "M",
+            "eveningFriendly": "M",
+            "nightFriendly": "M",
+            "offset": "-6"
+        },
+        {
+            "details": {
+                "morning": "6",
+                "afternoon": "10",
+                "evening": "7",
+                "night": "3",
+                "total": "26"
+            },
+            "dayNumber": "2",
+            "totalFriendly": "H",
+            "morningFriendly": "M",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "L",
+            "offset": "-7"
+        },
+        {
+            "details": {
+                "morning": "8",
+                "afternoon": "6",
+                "evening": "9",
+                "night": "2",
+                "total": "25"
+            },
+            "dayNumber": "1",
+            "totalFriendly": "H",
+            "morningFriendly": "M",
+            "afternoonFriendly": "M",
+            "eveningFriendly": "H",
+            "nightFriendly": "L",
+            "offset": "-8"
+        },
+        {
+            "details": {
+                "morning": "6",
+                "afternoon": "9",
+                "evening": "7",
+                "night": "4",
+                "total": "26"
+            },
+            "dayNumber": "0",
+            "totalFriendly": "H",
+            "morningFriendly": "M",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "L",
+            "offset": "-9"
+        },
+        {
+            "details": {
+                "morning": "10",
+                "afternoon": "9",
+                "evening": "6",
+                "night": "4",
+                "total": "29"
+            },
+            "dayNumber": "6",
+            "totalFriendly": "H",
+            "morningFriendly": "H",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "L",
+            "offset": "-10"
+        },
+        {
+            "details": {
+                "morning": "7",
+                "afternoon": "9",
+                "evening": "8",
+                "night": "3",
+                "total": "27"
+            },
+            "dayNumber": "5",
+            "totalFriendly": "H",
+            "morningFriendly": "M",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "L",
+            "offset": "-11"
+        },
+        {
+            "details": {
+                "morning": "10",
+                "afternoon": "11",
+                "evening": "10",
+                "night": "4",
+                "total": "35"
+            },
+            "dayNumber": "4",
+            "totalFriendly": "H",
+            "morningFriendly": "H",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "H",
+            "nightFriendly": "L",
+            "offset": "-12"
+        },
+        {
+            "details": {
+                "morning": "10",
+                "afternoon": "10",
+                "evening": "6",
+                "night": "0",
+                "total": "26"
+            },
+            "dayNumber": "3",
+            "totalFriendly": "H",
+            "morningFriendly": "H",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "Z",
+            "offset": "-13"
+        },
+        {
+            "details": {
+                "morning": "9",
+                "afternoon": "8",
+                "evening": "5",
+                "night": "1",
+                "total": "23"
+            },
+            "dayNumber": "2",
+            "totalFriendly": "M",
+            "morningFriendly": "H",
+            "afternoonFriendly": "M",
+            "eveningFriendly": "M",
+            "nightFriendly": "L",
+            "offset": "-14"
+        },
+        {
+            "details": {
+                "morning": "5",
+                "afternoon": "8",
+                "evening": "5",
+                "night": "0",
+                "total": "18"
+            },
+            "dayNumber": "1",
+            "totalFriendly": "M",
+            "morningFriendly": "M",
+            "afternoonFriendly": "M",
+            "eveningFriendly": "M",
+            "nightFriendly": "Z",
+            "offset": "-15"
+        },
+        {
+            "details": {
+                "morning": "7",
+                "afternoon": "8",
+                "evening": "3",
+                "night": "0",
+                "total": "18"
+            },
+            "dayNumber": "0",
+            "totalFriendly": "M",
+            "morningFriendly": "M",
+            "afternoonFriendly": "M",
+            "eveningFriendly": "L",
+            "nightFriendly": "Z",
+            "offset": "-16"
+        },
+        {
+            "details": {
+                "morning": "9",
+                "afternoon": "3",
+                "evening": "5",
+                "night": "0",
+                "total": "17"
+            },
+            "dayNumber": "6",
+            "totalFriendly": "M",
+            "morningFriendly": "H",
+            "afternoonFriendly": "L",
+            "eveningFriendly": "M",
+            "nightFriendly": "Z",
+            "offset": "-17"
+        },
+        {
+            "details": {
+                "morning": "8",
+                "afternoon": "6",
+                "evening": "5",
+                "night": "4",
+                "total": "23"
+            },
+            "dayNumber": "5",
+            "totalFriendly": "M",
+            "morningFriendly": "M",
+            "afternoonFriendly": "M",
+            "eveningFriendly": "M",
+            "nightFriendly": "L",
+            "offset": "-18"
+        },
+        {
+            "details": {
+                "morning": "11",
+                "afternoon": "12",
+                "evening": "8",
+                "night": "2",
+                "total": "33"
+            },
+            "dayNumber": "4",
+            "totalFriendly": "H",
+            "morningFriendly": "H",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "L",
+            "offset": "-19"
+        },
+        {
+            "details": {
+                "morning": "8",
+                "afternoon": "8",
+                "evening": "11",
+                "night": "2",
+                "total": "29"
+            },
+            "dayNumber": "3",
+            "totalFriendly": "H",
+            "morningFriendly": "M",
+            "afternoonFriendly": "M",
+            "eveningFriendly": "H",
+            "nightFriendly": "L",
+            "offset": "-20"
+        },
+        {
+            "details": {
+                "morning": "6",
+                "afternoon": "10",
+                "evening": "8",
+                "night": "5",
+                "total": "29"
+            },
+            "dayNumber": "2",
+            "totalFriendly": "H",
+            "morningFriendly": "M",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "M",
+            "offset": "-21"
+        },
+        {
+            "details": {
+                "morning": "10",
+                "afternoon": "9",
+                "evening": "8",
+                "night": "5",
+                "total": "32"
+            },
+            "dayNumber": "1",
+            "totalFriendly": "H",
+            "morningFriendly": "H",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "M",
+            "offset": "-22"
+        },
+        {
+            "details": {
+                "morning": "8",
+                "afternoon": "10",
+                "evening": "8",
+                "night": "6",
+                "total": "32"
+            },
+            "dayNumber": "0",
+            "totalFriendly": "H",
+            "morningFriendly": "M",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "M",
+            "offset": "-23"
+        },
+        {
+            "details": {
+                "morning": "6",
+                "afternoon": "11",
+                "evening": "7",
+                "night": "10",
+                "total": "34"
+            },
+            "dayNumber": "6",
+            "totalFriendly": "H",
+            "morningFriendly": "M",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "H",
+            "offset": "-24"
+        },
+        {
+            "details": {
+                "morning": "7",
+                "afternoon": "8",
+                "evening": "7",
+                "night": "2",
+                "total": "24"
+            },
+            "dayNumber": "5",
+            "totalFriendly": "M",
+            "morningFriendly": "M",
+            "afternoonFriendly": "M",
+            "eveningFriendly": "M",
+            "nightFriendly": "L",
+            "offset": "-25"
+        },
+        {
+            "details": {
+                "morning": "7",
+                "afternoon": "9",
+                "evening": "8",
+                "night": "3",
+                "total": "27"
+            },
+            "dayNumber": "4",
+            "totalFriendly": "H",
+            "morningFriendly": "M",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "L",
+            "offset": "-26"
+        },
+        {
+            "details": {
+                "morning": "11",
+                "afternoon": "9",
+                "evening": "10",
+                "night": "5",
+                "total": "35"
+            },
+            "dayNumber": "3",
+            "totalFriendly": "H",
+            "morningFriendly": "H",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "H",
+            "nightFriendly": "M",
+            "offset": "-27"
+        },
+        {
+            "details": {
+                "morning": "7",
+                "afternoon": "9",
+                "evening": "7",
+                "night": "7",
+                "total": "30"
+            },
+            "dayNumber": "2",
+            "totalFriendly": "H",
+            "morningFriendly": "M",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "M",
+            "offset": "-28"
+        },
+        {
+            "details": {
+                "morning": "0",
+                "afternoon": "9",
+                "evening": "7",
+                "night": "0",
+                "total": "16"
+            },
+            "dayNumber": "1",
+            "totalFriendly": "M",
+            "morningFriendly": "Z",
+            "afternoonFriendly": "H",
+            "eveningFriendly": "M",
+            "nightFriendly": "Z",
+            "offset": "-29"
+        }
+    ],
+    "stats": {
+        "mostActiveDayOfWeek": [
+            {
+                "dayNumber": "4",
+                "usageCount": "123",
+                "sampleCount": "4",
+                "averageUsageCount": "30.75"
+            },
+            {
+                "dayNumber": "3",
+                "usageCount": "119",
+                "sampleCount": "4",
+                "averageUsageCount": "29.75"
+            },
+            {
+                "dayNumber": "2",
+                "usageCount": "108",
+                "sampleCount": "4",
+                "averageUsageCount": "27"
+            },
+            {
+                "dayNumber": "0",
+                "usageCount": "106",
+                "sampleCount": "4",
+                "averageUsageCount": "26.5"
+            },
+            {
+                "dayNumber": "5",
+                "usageCount": "101",
+                "sampleCount": "4",
+                "averageUsageCount": "25.25"
+            },
+            {
+                "dayNumber": "6",
+                "usageCount": "95",
+                "sampleCount": "4",
+                "averageUsageCount": "23.75"
+            },
+            {
+                "dayNumber": "1",
+                "usageCount": "91",
+                "sampleCount": "4",
+                "averageUsageCount": "22.75"
+            }
+        ],
+        "mostActiveTimeOfDay": [
+            {
+                "segmentName": "afternoon",
+                "usageCount": "233",
+                "sampleCount": "28",
+                "averageUsageCount": "8.321428571428571"
+            },
+            {
+                "segmentName": "morning",
+                "usageCount": "219",
+                "sampleCount": "28",
+                "averageUsageCount": "7.821428571428571"
+            },
+            {
+                "segmentName": "evening",
+                "usageCount": "199",
+                "sampleCount": "28",
+                "averageUsageCount": "7.107142857142857"
+            },
+            {
+                "segmentName": "night",
+                "usageCount": "92",
+                "sampleCount": "28",
+                "averageUsageCount": "3.2857142857142856"
+            }
+        ]
+    },
+    "ts": 1708408079649
+}
