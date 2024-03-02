@@ -1,4 +1,5 @@
 """Adds config flow for Leakbot."""
+
 from __future__ import annotations
 
 import voluptuous as vol
@@ -8,7 +9,7 @@ from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
 from .api import (
-    LeakbotApiClient,
+    LeakbotApiClient_OLD,
     LeakbotApiClientAuthenticationError,
     LeakbotApiClientCommunicationError,
     LeakbotApiClientError,
@@ -72,7 +73,7 @@ class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def _test_credentials(self, username: str, password: str) -> None:
         """Validate credentials."""
-        client = LeakbotApiClient(
+        client = LeakbotApiClient_OLD(
             username=username,
             password=password,
             session=async_create_clientsession(self.hass),

@@ -1,4 +1,5 @@
 """DataUpdateCoordinator for Leakbot."""
+
 from __future__ import annotations
 
 from datetime import timedelta
@@ -12,7 +13,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
 from .api import (
-    LeakbotApiClient,
+    LeakbotApiClient_OLD,
     LeakbotApiClientAuthenticationError,
     LeakbotApiClientError,
 )
@@ -27,7 +28,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
     def __init__(
         self,
         hass: HomeAssistant,
-        client: LeakbotApiClient,
+        client: LeakbotApiClient_OLD,
     ) -> None:
         """Initialize."""
         self.client = client

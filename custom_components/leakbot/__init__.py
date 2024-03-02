@@ -3,6 +3,7 @@
 For more details about this integration, please refer to
 https://github.com/sHedC/homeassistant-leakbot
 """
+
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
@@ -10,7 +11,7 @@ from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import LeakbotApiClient
+from .api import LeakbotApiClient_OLD
 from .const import DOMAIN
 from .coordinator import LeakbotDataUpdateCoordinator
 
@@ -24,7 +25,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator = LeakbotDataUpdateCoordinator(
         hass=hass,
-        client=LeakbotApiClient(
+        client=LeakbotApiClient_OLD(
             username=entry.data[CONF_USERNAME],
             password=entry.data[CONF_PASSWORD],
             session=async_get_clientsession(hass),
