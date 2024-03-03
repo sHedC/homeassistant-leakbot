@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import socket
 
 from aiohttp import ClientSession, ClientError
@@ -50,7 +51,7 @@ class LeakbotApiClient:
         try:
             response = await self._session.post(
                 url,
-                data=params,
+                data=json.dumps(params),
                 headers={
                     "Accept": "application/json",
                     "Content-Type": "application/json",

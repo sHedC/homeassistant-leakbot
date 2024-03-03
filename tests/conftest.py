@@ -1,13 +1,10 @@
 """Test Configuration for the tests."""
 
-import json
 import os
 import pytest
 
-from aiohttp import web
 from aiohttp.test_utils import TestClient
 from aiohttp.web import Application, Request, Response
-from asyncio import AbstractEventLoop
 from collections.abc import Callable, Coroutine
 from unittest.mock import patch
 
@@ -94,8 +91,19 @@ class LeakbotAPIMock:
 
     async def account_mylogin(self, request: Request) -> Response:
         """Mock API for logging in."""
-        self._logged_in = False
+        data = await request.json()
+
+        if (
+            data["username"] == VALID_LOGIN["username"]
+            and data["password"] == VALID_LOGIN["password"]
+        ):
+            self._logged_in = True
+            response_text = load_fixture("account_mylogin.json")
+        else:
+            self._logged_in = False
+            response_text = load_fixture("account_mylogin_failure.json")
+
         return Response(
-            text=load_fixture("account_mylogin_failure.json"),
+            text=response_text,
             content_type="application/json",
         )
