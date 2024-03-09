@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
-import socket
 
 from aiohttp import ClientSession, ClientError
 from json.decoder import JSONDecodeError
@@ -13,7 +11,8 @@ from urllib.parse import urljoin
 from .const import LOGGER
 
 API_URL = "https://api.leakbot.io"
-API_LOGIN = "/User/Account/MyLogin/"
+API_LOGIN = "/v1.0/User/Account/MyLogin/"
+API_DEVICE_LIST = "/v1.0/User/Device/MyDeviceList/"
 
 
 class LeakbotApiClientError(Exception):
@@ -101,61 +100,14 @@ class LeakbotApiClient:
         self._connected = True
         return result_json
 
+    async def get_device_list(self) -> dict[str, any]:
+        """Retrieve the list of devices connected to the account."""
+        params = {"token": self._token}
+        result_json = await self._post(urljoin(API_URL, API_DEVICE_LIST), params)
 
-class LeakbotApiClient_OLD:
-    """Sample API Client."""
-
-    def __init__(self, username: str, password: str):
-        """Initialize the calss."""
-        self._username = username
-        self._password = password
+        # TODO: Handle Error responses (invalid token)
+        return result_json
 
     async def async_get_data(self) -> any:
         """Get data from the API."""
-        return await self._api_wrapper(
-            method="get", url="https://jsonplaceholder.typicode.com/posts/1"
-        )
-
-    async def async_set_title(self, value: str) -> any:
-        """Get data from the API."""
-        return await self._api_wrapper(
-            method="patch",
-            url="https://jsonplaceholder.typicode.com/posts/1",
-            data={"title": value},
-            headers={"Content-type": "application/json; charset=UTF-8"},
-        )
-
-    async def _api_wrapper(
-        self,
-        method: str,
-        url: str,
-        data: dict | None = None,
-        headers: dict | None = None,
-    ) -> any:
-        """Get information from the API."""
-        try:
-            response = await self._session.request(
-                method=method,
-                url=url,
-                headers=headers,
-                json=data,
-            )
-            if response.status in (401, 403):
-                raise LeakbotApiClientCommunicationError(
-                    "Invalid credentials",
-                )
-            response.raise_for_status()
-            return await response.json()
-
-        except asyncio.TimeoutError as exception:
-            raise LeakbotApiClientCommunicationError(
-                "Timeout error fetching information",
-            ) from exception
-        except (ClientError, socket.gaierror) as exception:
-            raise LeakbotApiClientCommunicationError(
-                "Error fetching information",
-            ) from exception
-        except Exception as exception:  # pylint: disable=broad-except
-            raise LeakbotApiClientError(
-                "Something really wrong happened!"
-            ) from exception
+        return {}

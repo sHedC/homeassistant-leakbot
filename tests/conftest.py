@@ -11,6 +11,8 @@ from unittest.mock import patch
 from homeassistant.core import HomeAssistant
 from homeassistant.components.http.forwarded import async_setup_forwarded
 
+from custom_components.leakbot.api import API_DEVICE_LIST, API_LOGIN
+
 VALID_LOGIN = {
     "username": "value_user@address.com",
     "password": "realpassword",
@@ -75,7 +77,8 @@ async def leakbot_api(hass: HomeAssistant) -> Application:
     app["hass"] = hass
 
     api = LeakbotAPIMock()
-    app.router.add_route("POST", "/User/Account/MyLogin/", api.account_mylogin)
+    app.router.add_route("POST", API_LOGIN, api.account_mylogin)
+    app.router.add_route("POST", API_DEVICE_LIST, api.device_mydevicelist)
 
     async_setup_forwarded(app, True, [])
     return app
@@ -86,7 +89,6 @@ class LeakbotAPIMock:
 
     def __init__(self) -> None:
         """Initialize the Mock API."""
-        self._logged_in = False
         self._token = ""
 
     async def account_mylogin(self, request: Request) -> Response:
@@ -97,13 +99,29 @@ class LeakbotAPIMock:
             data["username"] == VALID_LOGIN["username"]
             and data["password"] == VALID_LOGIN["password"]
         ):
-            self._logged_in = True
+            self._token = "correcttokenstring"
             response_text = load_fixture("account_mylogin.json")
         else:
-            self._logged_in = False
+            self._token = "wrongtokenstring"
             response_text = load_fixture("account_mylogin_failure.json")
 
         return Response(
             text=response_text,
             content_type="application/json",
+        )
+
+    async def device_mydevicelist(self, request: Request) -> Response:
+        """Mock API to get devices."""
+        data = await request.json()
+        token = data["token"]
+        lctoken = request.cookies.get("lctoken")
+
+        if self._token == token and self._token == lctoken:
+            response_text = load_fixture("device_mydevicelist.json")
+        else:
+            response_text = ""
+
+        return Response(
+            text=response_text,
+            content_type="applicaiton/json",
         )

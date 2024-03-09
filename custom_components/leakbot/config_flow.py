@@ -9,7 +9,7 @@ from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
 from .api import (
-    LeakbotApiClient_OLD,
+    LeakbotApiClient,
     LeakbotApiClientAuthenticationError,
     LeakbotApiClientCommunicationError,
     LeakbotApiClientError,
@@ -73,7 +73,7 @@ class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def _test_credentials(self, username: str, password: str) -> None:
         """Validate credentials."""
-        client = LeakbotApiClient_OLD(
+        client = LeakbotApiClient(
             username=username,
             password=password,
             session=async_create_clientsession(self.hass),

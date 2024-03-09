@@ -13,7 +13,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
 from .api import (
-    LeakbotApiClient_OLD,
+    LeakbotApiClient,
     LeakbotApiClientAuthenticationError,
     LeakbotApiClientError,
 )
@@ -23,15 +23,15 @@ from .const import DOMAIN, LOGGER
 class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
 
-    config_entry: ConfigEntry
-
     def __init__(
         self,
         hass: HomeAssistant,
-        client: LeakbotApiClient_OLD,
+        client: LeakbotApiClient,
+        entry_id: str,
     ) -> None:
         """Initialize."""
         self.client = client
+        self.entry_id = entry_id
         super().__init__(
             hass=hass,
             logger=LOGGER,

@@ -11,13 +11,11 @@ from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import LeakbotApiClient_OLD
+from .api import LeakbotApiClient
 from .const import DOMAIN
 from .coordinator import LeakbotDataUpdateCoordinator
 
-PLATFORMS: list[Platform] = [
-    Platform.SENSOR,
-]
+PLATFORMS: list[Platform] = []
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -25,11 +23,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator = LeakbotDataUpdateCoordinator(
         hass=hass,
-        client=LeakbotApiClient_OLD(
+        client=LeakbotApiClient(
             username=entry.data[CONF_USERNAME],
             password=entry.data[CONF_PASSWORD],
             session=async_get_clientsession(hass),
         ),
+        entry_id=entry.entry_id,
     )
     await coordinator.async_config_entry_first_refresh()
 

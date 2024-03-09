@@ -41,3 +41,19 @@ async def test_login_pass(
     assert api.is_connected
     assert result["token"]
     assert result["tenant_id"]
+
+
+async def test_device_list(
+    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
+):
+    """Test getting the device list."""
+    session = await aiohttp_client(leakbot_api)
+    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+
+    await api.login()
+    assert api.is_connected
+
+    device_list = api.get_device_list()
+    assert device_list
+
+    pass
