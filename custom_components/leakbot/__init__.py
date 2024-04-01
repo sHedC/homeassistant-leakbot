@@ -7,7 +7,7 @@ https://github.com/sHedC/homeassistant-leakbot
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
+from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, CONF_TOKEN, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -15,7 +15,7 @@ from .api import LeakbotApiClient
 from .const import DOMAIN
 from .coordinator import LeakbotDataUpdateCoordinator
 
-PLATFORMS: list[Platform] = []
+PLATFORMS: list[Platform] = [Platform.DEVICE_TRACKER]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -27,6 +27,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             username=entry.data[CONF_USERNAME],
             password=entry.data[CONF_PASSWORD],
             session=async_get_clientsession(hass),
+            token=entry.data[CONF_TOKEN],
         ),
         entry_id=entry.entry_id,
     )

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, CONF_TOKEN
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
@@ -30,10 +30,12 @@ class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         _errors = {}
         if user_input is not None:
             try:
-                await self._test_credentials(
+                token = await self._test_credentials(
                     username=user_input[CONF_USERNAME],
                     password=user_input[CONF_PASSWORD],
                 )
+
+                user_input[CONF_TOKEN] = token
             except LeakbotApiClientAuthenticationError as exception:
                 LOGGER.warning(exception)
                 _errors["base"] = "auth"
@@ -71,11 +73,12 @@ class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=_errors,
         )
 
-    async def _test_credentials(self, username: str, password: str) -> None:
+    async def _test_credentials(self, username: str, password: str) -> str:
         """Validate credentials."""
         client = LeakbotApiClient(
             username=username,
             password=password,
             session=async_create_clientsession(self.hass),
         )
-        await client.async_get_data()
+        result = await client.login()
+        return result[CONF_TOKEN]

@@ -13,6 +13,10 @@ from .const import LOGGER
 API_URL = "https://api.leakbot.io"
 API_LOGIN = "/v1.0/User/Account/MyLogin/"
 API_DEVICE_LIST = "/v1.0/User/Device/MyDeviceList/"
+API_ACCOUNT_MYREAD = "/v1.0/User/Account/MyRead/"
+API_ADDRESS_MYREAD = "/v1.0/User/Address/MyRead/"
+API_TENANT_MYVIEW = "/v1.0/User/Tenant/MyView/"
+API_DEVICE_MYVIEW = "/v1.0/Device/Device/MyView/"
 
 
 class LeakbotApiClientError(Exception):
@@ -36,14 +40,24 @@ class LeakbotApiClientAuthenticationError(LeakbotApiClientError):
 class LeakbotApiClient:
     """Leakbot API Client Connector."""
 
-    def __init__(self, username: str, password: str, session: ClientSession) -> None:
+    def __init__(
+        self,
+        username: str,
+        password: str,
+        session: ClientSession,
+        token: str | None = None,
+    ) -> None:
         """Initialize API Client."""
         self._session = session
         self._username = username
         self._password = password
         self._connected = False
-        self._token = "randomtoken"
-        self._token_expires = 0
+
+        if token:
+            self._token = token
+            self._connected = True
+        else:
+            self._token = "randomtoken"
 
     async def _post(self, url: str, params: dict[str, any]) -> dict[str, any]:
         """Perform post to the api."""
@@ -104,6 +118,38 @@ class LeakbotApiClient:
         """Retrieve the list of devices connected to the account."""
         params = {"token": self._token}
         result_json = await self._post(urljoin(API_URL, API_DEVICE_LIST), params)
+
+        # TODO: Handle Error responses (invalid token)
+        return result_json
+
+    async def get_account_myread(self) -> dict[str, any]:
+        """Retrieve the Account Main Details."""
+        params = {"token": self._token}
+        result_json = await self._post(urljoin(API_URL, API_ACCOUNT_MYREAD), params)
+
+        # TODO: Handle Error responses (invalid token)
+        return result_json
+
+    async def get_address_myread(self) -> dict[str, any]:
+        """Retrieve the Account Address Details."""
+        params = {"token": self._token}
+        result_json = await self._post(urljoin(API_URL, API_ADDRESS_MYREAD), params)
+
+        # TODO: Handle Error responses (invalid token)
+        return result_json
+
+    async def get_tenant_myview(self) -> dict[str, any]:
+        """Retrieve the Tenant Details."""
+        params = {"token": self._token}
+        result_json = await self._post(urljoin(API_URL, API_TENANT_MYVIEW), params)
+
+        # TODO: Handle Error responses (invalid token)
+        return result_json
+
+    async def get_device_data(self, device_id: str) -> dict[str, any]:
+        """Retrieve the Device Data."""
+        params = {"token": self._token, "LbDevice_ID": device_id}
+        result_json = await self._post(urljoin(API_URL, API_DEVICE_MYVIEW), params)
 
         # TODO: Handle Error responses (invalid token)
         return result_json

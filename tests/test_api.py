@@ -53,7 +53,65 @@ async def test_device_list(
     await api.login()
     assert api.is_connected
 
-    device_list = api.get_device_list()
+    device_list = await api.get_device_list()
     assert device_list
 
-    pass
+
+async def test_account_myread(
+    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
+):
+    """Test getting the account data."""
+    session = await aiohttp_client(leakbot_api)
+    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+
+    await api.login()
+    assert api.is_connected
+
+    account_myread = await api.get_account_myread()
+    assert account_myread
+
+
+async def test_address_myread(
+    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
+):
+    """Test getting the account data."""
+    session = await aiohttp_client(leakbot_api)
+    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+
+    await api.login()
+    assert api.is_connected
+
+    address_myread = await api.get_address_myread()
+    assert address_myread
+
+
+async def test_tenant_myview(
+    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
+):
+    """Test getting the account data."""
+    session = await aiohttp_client(leakbot_api)
+    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+
+    await api.login()
+    assert api.is_connected
+
+    tenant = await api.get_tenant_myview()
+    assert tenant
+
+
+async def test_device_myview(
+    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
+):
+    """Test getting the device data."""
+    session = await aiohttp_client(leakbot_api)
+    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+
+    await api.login()
+    assert api.is_connected
+
+    devices = await api.get_device_list()
+    assert devices
+
+    for device in devices["IDs"]:
+        device_data = await api.get_device_data(device["id"])
+        assert device_data
