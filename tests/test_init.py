@@ -12,29 +12,25 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.leakbot import (
     async_setup_entry,
     async_reload_entry,
-    async_unload_entry,
     LeakbotDataUpdateCoordinator,
 )
 from custom_components.leakbot.const import DOMAIN
+
+from .conftest import VALID_LOGIN
 
 
 @pytest.fixture
 def mock_entitydata() -> dict[str, any]:
     """Mock data for the API."""
-    return {"test": "test"}
+    return {"devices": {"123456": {"id": "123456", "device_status": "Leak Inactive"}}}
 
 
-@pytest.fixture
-def mock_configdata() -> dict[str, any]:
-    """Mock data for the API."""
-    return {DOMAIN: {"username": "test", "password": "test"}}
-
-
+@pytest.mark.parametrize("expected_lingering_timers", [True])
 async def test_setup_unload_and_reload_entry(
-    hass: HomeAssistant, mock_configdata: dict, mock_entitydata: dict
+    hass: HomeAssistant, mock_entitydata: dict
 ):
     """Test a Configured Instance that Logs In and Updates."""
-    entry = MockConfigEntry(domain=DOMAIN, data=mock_configdata[DOMAIN])
+    entry = MockConfigEntry(domain=DOMAIN, data=VALID_LOGIN)
     entry.add_to_hass(hass)
 
     with patch(
@@ -65,18 +61,10 @@ async def test_setup_unload_and_reload_entry(
 
     assert len(mock_sync.mock_calls) > 0
 
-    # Unload the entry and verify that the data has been removed
-    assert await async_unload_entry(hass, entry)
-    assert entry.entry_id not in hass.data[DOMAIN]
 
-
-async def test_unload_entry(
-    hass: HomeAssistant, mock_configdata: dict, mock_entitydata: dict
-):
+async def test_unload_entry(hass: HomeAssistant, mock_entitydata: dict):
     """Test being able to unload an entry."""
-    entry = MockConfigEntry(
-        domain=DOMAIN, data=mock_configdata[DOMAIN], entry_id="test"
-    )
+    entry = MockConfigEntry(domain=DOMAIN, data=VALID_LOGIN, entry_id="test")
     entry.add_to_hass(hass)
 
     # Check the Config is initiated

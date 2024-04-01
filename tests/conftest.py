@@ -11,11 +11,19 @@ from unittest.mock import patch
 from homeassistant.core import HomeAssistant
 from homeassistant.components.http.forwarded import async_setup_forwarded
 
-from custom_components.leakbot.api import API_DEVICE_LIST, API_LOGIN
+from custom_components.leakbot.api import (
+    API_LOGIN,
+    API_ACCOUNT_MYREAD,
+    API_ADDRESS_MYREAD,
+    API_DEVICE_LIST,
+    API_DEVICE_MYVIEW,
+    API_TENANT_MYVIEW,
+)
 
 VALID_LOGIN = {
     "username": "value_user@address.com",
     "password": "realpassword",
+    "token": "correcttoken",
 }
 
 
@@ -79,6 +87,10 @@ async def leakbot_api(hass: HomeAssistant) -> Application:
     api = LeakbotAPIMock()
     app.router.add_route("POST", API_LOGIN, api.account_mylogin)
     app.router.add_route("POST", API_DEVICE_LIST, api.device_mydevicelist)
+    app.router.add_route("POST", API_ACCOUNT_MYREAD, api.account_myread)
+    app.router.add_route("POST", API_ADDRESS_MYREAD, api.address_myread)
+    app.router.add_route("POST", API_TENANT_MYVIEW, api.tenant_myview)
+    app.router.add_route("POST", API_DEVICE_MYVIEW, api.device_myview)
 
     async_setup_forwarded(app, True, [])
     return app
@@ -89,7 +101,7 @@ class LeakbotAPIMock:
 
     def __init__(self) -> None:
         """Initialize the Mock API."""
-        self._token = ""
+        self._token = "correcttoken"
 
     async def account_mylogin(self, request: Request) -> Response:
         """Mock API for logging in."""
@@ -123,5 +135,70 @@ class LeakbotAPIMock:
 
         return Response(
             text=response_text,
-            content_type="applicaiton/json",
+            content_type="application/json",
+        )
+
+    async def account_myread(self, request: Request) -> Response:
+        """Mock API to get Account Details."""
+        data = await request.json()
+        token = data["token"]
+        lctoken = request.cookies.get("lctoken")
+
+        if self._token == token and self._token == lctoken:
+            response_text = load_fixture("account_myread.json")
+        else:
+            response_text = ""
+
+        return Response(
+            text=response_text,
+            content_type="application/json",
+        )
+
+    async def address_myread(self, request: Request) -> Response:
+        """Mock API to get Address Details."""
+        data = await request.json()
+        token = data["token"]
+        lctoken = request.cookies.get("lctoken")
+
+        if self._token == token and self._token == lctoken:
+            response_text = load_fixture("address_myread.json")
+        else:
+            response_text = ""
+
+        return Response(
+            text=response_text,
+            content_type="application/json",
+        )
+
+    async def tenant_myview(self, request: Request) -> Response:
+        """Mock API to get Tentant Details."""
+        data = await request.json()
+        token = data["token"]
+        lctoken = request.cookies.get("lctoken")
+
+        if self._token == token and self._token == lctoken:
+            response_text = load_fixture("tenant_myview.json")
+        else:
+            response_text = ""
+
+        return Response(
+            text=response_text,
+            content_type="application/json",
+        )
+
+    async def device_myview(self, request: Request) -> Response:
+        """Mock API to get Device Data."""
+        data = await request.json()
+        token = data["token"]
+        lctoken = request.cookies.get("lctoken")
+
+        if self._token == token and self._token == lctoken:
+            device_id = data["LbDevice_ID"]
+            response_text = load_fixture(f"device_myview_{device_id}.json")
+        else:
+            response_text = ""
+
+        return Response(
+            text=response_text,
+            content_type="application/json",
         )

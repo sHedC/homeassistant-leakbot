@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import slugify
 
 from .const import ATTRIBUTION, DOMAIN, NAME, VERSION
 from .coordinator import LeakbotDataUpdateCoordinator
@@ -14,12 +15,16 @@ class LeakbotEntity(CoordinatorEntity):
 
     _attr_attribution = ATTRIBUTION
 
-    def __init__(self, coordinator: LeakbotDataUpdateCoordinator) -> None:
+    def __init__(
+        self, coordinator: LeakbotDataUpdateCoordinator, id: str, platform: str
+    ) -> None:
         """Initialize."""
         super().__init__(coordinator)
-        self._attr_unique_id = coordinator.entry_id
+        self._attr_unique_id = slugify(f"{DOMAIN}_{id}")
+        self.entity_id = f"{platform}.{self._attr_unique_id}"
+
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, self.unique_id)},
+            identifiers={(DOMAIN, id)},
             name=NAME,
             model=VERSION,
             manufacturer=NAME,
