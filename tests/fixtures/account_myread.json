@@ -1,0 +1,17 @@
+{
+    "datapolicies_data_sell_allowed": "2",
+    "emailAllowed": "0",
+    "first_name": "First",
+    "home_tel_number": "null",
+    "language": "en",
+    "last_name": "Last",
+    "mobile_number": "+441234567890",
+    "phoneAllowed": "0",
+    "postAllowed": "0",
+    "smsAllowed": "0",
+    "tenant": "Company",
+    "updated": "2024-02-20 05:47:57",
+    "username": "name@email.com",
+    "ts": 1710093397087,
+    "ms": 102
+}
