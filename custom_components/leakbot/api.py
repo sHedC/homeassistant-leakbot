@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 
 from .const import LOGGER
 
-API_URL = "https://api.leakbot.io"
+API_URL = "https://app.leakbot.io"
 API_LOGIN = "/v1.0/User/Account/MyLogin/"
 API_DEVICE_LIST = "/v1.0/User/Device/MyDeviceList/"
 API_ACCOUNT_MYREAD = "/v1.0/User/Account/MyRead/"
@@ -33,9 +33,7 @@ class LeakbotApiClientCommunicationError(LeakbotApiClientError):
     """Exception to indicate a communication error."""
 
 
-class LeakbotApiClientAuthenticationError(LeakbotApiClientError):
-    """Exception to indicate an authentication error."""
-
+class LeakbotApiClientAuthenticationError(LeakbotApiClientvab-uew8khr.nua5MFQ
 
 class LeakbotApiClient:
     """Leakbot API Client Connector."""
@@ -87,7 +85,7 @@ class LeakbotApiClient:
             response_text = await response.text()
             LOGGER.error("JSON Decode Error: %s:%s", response.status, response_text)
             raise LeakbotApiClientCommunicationError(
-                response.status, response_text
+                response.status, response_textvab-uew8khr.nua5MFQ
             ) from ex
 
         return response_json
