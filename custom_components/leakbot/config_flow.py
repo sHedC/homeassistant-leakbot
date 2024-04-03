@@ -29,27 +29,19 @@ class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle a flow initialized by the user."""
         _errors = {}
         if user_input is not None:
-            try:
-                token = await self._test_credentials(
-                    username=user_input[CONF_USERNAME],
-                    password=user_input[CONF_PASSWORD],
-                )
+            result = await self._test_credentials(
+                username=user_input[CONF_USERNAME],
+                password=user_input[CONF_PASSWORD],
+            )
 
-                user_input[CONF_TOKEN] = token
-            except LeakbotApiClientAuthenticationError as exception:
-                LOGGER.warning(exception)
-                _errors["base"] = "auth"
-            except LeakbotApiClientCommunicationError as exception:
-                LOGGER.error(exception)
-                _errors["base"] = "connection"
-            except LeakbotApiClientError as exception:
-                LOGGER.exception(exception)
-                _errors["base"] = "unknown"
-            else:
+            if "token" in result:
+                user_input[CONF_TOKEN] = result[CONF_TOKEN]
                 return self.async_create_entry(
                     title=user_input[CONF_USERNAME],
                     data=user_input,
                 )
+            else:
+                _errors = result
 
         return self.async_show_form(
             step_id="user",
@@ -73,6 +65,56 @@ class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=_errors,
         )
 
+    async def async_step_reauth_confirm(
+        self,
+        user_input: dict | None = None,  # pylint: disable=unused-argument
+    ) -> config_entries.FlowResult:
+        """Handle reauth confirmation."""
+        assert self.reauth_entry is not None
+
+        # if there is no user input then re-direct the user step.
+        _errors = {}
+        if user_input is not None:
+            entry_data = self.reauth_entry.data
+
+            result = await self._test_credentials(
+                username=entry_data[CONF_USERNAME],
+                password=user_input[CONF_PASSWORD],
+            )
+
+            if "token" in result:
+                user_input[CONF_TOKEN] = result[CONF_TOKEN]
+                self.hass.config_entries.async_update_entry(
+                    self.reauth_entry, data={**entry_data, **user_input}
+                )
+                await self.hass.config_entries.async_reload(self.reauth_entry.entry_id)
+                return self.async_abort(reason="reauth_successful")
+            else:
+                _errors = result
+
+        return self.async_show_form(
+            step_id="reauth_confirm",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_PASSWORD): selector.TextSelector(
+                        selector.TextSelectorConfig(
+                            type=selector.TextSelectorType.PASSWORD
+                        ),
+                    ),
+                }
+            ),
+            errors=_errors,
+        )
+
+    async def async_step_reauth(
+        self, user_input: dict | None = None  # pylint: disable=unused-argument
+    ) -> config_entries.FlowResult:
+        """Handle configuration by re-auth."""
+        self.reauth_entry = self.hass.config_entries.async_get_entry(
+            self.context["entry_id"]
+        )
+        return await self.async_step_reauth_confirm()
+
     async def _test_credentials(self, username: str, password: str) -> str:
         """Validate credentials."""
         client = LeakbotApiClient(
@@ -80,5 +122,18 @@ class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             password=password,
             session=async_create_clientsession(self.hass),
         )
-        result = await client.login()
-        return result[CONF_TOKEN]
+
+        result = {}
+        try:
+            result = await client.login()
+        except LeakbotApiClientAuthenticationError as exception:
+            LOGGER.warning(exception)
+            result["base"] = "auth"
+        except LeakbotApiClientCommunicationError as exception:
+            LOGGER.error(exception)
+            result["base"] = "connection"
+        except LeakbotApiClientError as exception:
+            LOGGER.exception(exception)
+            result["base"] = "unknown"
+
+        return result
