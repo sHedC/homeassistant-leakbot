@@ -33,7 +33,9 @@ class LeakbotApiClientCommunicationError(LeakbotApiClientError):
     """Exception to indicate a communication error."""
 
 
-class LeakbotApiClientAuthenticationError(LeakbotApiClientvab-uew8khr.nua5MFQ
+class LeakbotApiClientAuthenticationError(LeakbotApiClientError):
+    """Exception to indicate an authentication error."""
+
 
 class LeakbotApiClient:
     """Leakbot API Client Connector."""
@@ -85,7 +87,7 @@ class LeakbotApiClient:
             response_text = await response.text()
             LOGGER.error("JSON Decode Error: %s:%s", response.status, response_text)
             raise LeakbotApiClientCommunicationError(
-                response.status, response_textvab-uew8khr.nua5MFQ
+                response.status, response_text
             ) from ex
 
         return response_json
