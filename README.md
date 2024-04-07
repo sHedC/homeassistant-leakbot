@@ -3,7 +3,7 @@
 ![Project Maintenance][maintenance-shield]
 [![GitHub Activity][commits-shield]][commits]
 
-[![hacs][hacsbadge]][hacs]
+# [![hacs][hacsbadge]][hacs]
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
 [![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
@@ -68,19 +68,7 @@ To install manually, if you really want to: I won't support this.
 7. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "Leakbot"
 
 ## Example HASS View
-TBC
-
-## Automation
-TBC
-
-## Sensor Details
-TBC
-
-## Development Envionrment
-I have set this up to be able to run development or testing using Visual Studio Code with Docker or Podman in line with the integration blueprint.
-
-To setup just copy the .devcontainer-template.json to .devcontainer.json
-- If using podman uncomment the section runArgs to avoid permission issues.
+TBCDefaultgs to avoid permission issues.
 - Update BUILD_TYPE to "run" to run an instance of Home Assistant and "dev" to do development with pytest.
 
 ## Contributions are welcome!
