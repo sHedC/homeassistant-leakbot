@@ -16,11 +16,20 @@ class LeakbotEntity(CoordinatorEntity):
     _attr_attribution = ATTRIBUTION
 
     def __init__(
-        self, coordinator: LeakbotDataUpdateCoordinator, id: str, platform: str
+        self,
+        platform: str,
+        coordinator: LeakbotDataUpdateCoordinator,
+        id: str,
+        key: str | None = None,
     ) -> None:
         """Initialize."""
         super().__init__(coordinator)
-        self._attr_unique_id = slugify(f"{DOMAIN}_{id}")
+        self._device_id = id
+        if key:
+            self._attr_unique_id = slugify(f"{DOMAIN}_{id}_{key}")
+        else:
+            self._attr_unique_id = slugify(f"{DOMAIN}_{id}")
+
         self.entity_id = f"{platform}.{self._attr_unique_id}"
 
         self._attr_device_info = DeviceInfo(
@@ -29,3 +38,9 @@ class LeakbotEntity(CoordinatorEntity):
             model=VERSION,
             manufacturer=NAME,
         )
+
+    @property
+    def get_device_data(self) -> dict[str, any]:
+        """Get the device data."""
+        data = self.coordinator.data["devices"][self._device_id]
+        return data

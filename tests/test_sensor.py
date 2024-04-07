@@ -10,9 +10,7 @@ from homeassistant.const import Platform
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.leakbot.api import LeakbotApiClient
 from custom_components.leakbot.const import DOMAIN
-from custom_components.leakbot.coordinator import LeakbotDataUpdateCoordinator
 
 from .conftest import ClientSessionGenerator, VALID_LOGIN
 

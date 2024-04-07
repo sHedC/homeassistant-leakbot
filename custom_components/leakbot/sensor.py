@@ -16,7 +16,7 @@ ENTITY_DESCRIPTIONS = (
     SensorEntityDescription(
         key="device_status",
         name="Device Status",
-        icon="mdi:format-quote-close",
+        icon="mdi:water-check-outline",
     ),
 )
 
@@ -47,9 +47,8 @@ class LeakbotSensor(LeakbotEntity, SensorEntity):
         entity_description: SensorEntityDescription,
     ) -> None:
         """Initialize the sensor class."""
-        self._device_id = device["id"]
         super().__init__(
-            coordinator, f"{self._device_id}_{entity_description.key}", Platform.SENSOR
+            Platform.SENSOR, coordinator, device["id"], entity_description.key
         )
         self.entity_description = entity_description
 
@@ -57,4 +56,4 @@ class LeakbotSensor(LeakbotEntity, SensorEntity):
     def native_value(self) -> str:
         """Return the native value of the sensor."""
         # Here we get from data->devices->device_id->device_status
-        return self.coordinator.data["devices"][self._device_id]["device_status"]
+        return self.get_device_data["device_status"]

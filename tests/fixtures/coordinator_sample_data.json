@@ -1,0 +1,88 @@
+{
+    "account": {
+        "datapolicies_data_sell_allowed": "2",
+        "emailAllowed": "0",
+        "first_name": "First",
+        "home_tel_number": "null",
+        "language": "en",
+        "last_name": "Last",
+        "mobile_number": "+441234567890",
+        "phoneAllowed": "0",
+        "postAllowed": "0",
+        "smsAllowed": "0",
+        "tenant": "Company",
+        "updated": "2024-02-20 05:47:57",
+        "username": "name@email.com",
+        "ts": 1710093397087,
+        "ms": 102
+    },
+    "address": {
+        "Addresses": [
+            {
+                "LbDevice_ID": "123456",
+                "address_1": "Address Line 1",
+                "address_2": "null",
+                "address_3": "null",
+                "city": "City",
+                "country": "Country",
+                "latitude": "55.122315",
+                "longitude": "-3.823247",
+                "postCode": "Post Code",
+                "updated": "2022-02-16 16:39:23"
+            }
+        ],
+        "ts": 1708408078287,
+        "ms": 104
+    },
+    "tenant": {
+        "code": "DLGAACCSST4",
+        "emailAllowed": "1",
+        "frozen_pipe_feature": "0",
+        "frozen_pipe_threshold": "-3",
+        "highflow_sms_allowed": "0",
+        "install_chasers_frequency": "7",
+        "install_chasers_max": "4",
+        "leak_daysAllowed": "1",
+        "leak_days_threshold": "28",
+        "leak_max_reminder": "3",
+        "leak_reminder_fequency": "5",
+        "lost_connection_frequency": "3",
+        "lost_connection_max": "3",
+        "monthly_updatesAllowed": "0",
+        "monthly_updates_frequency": "30",
+        "name": "Company Provided",
+        "smsAllowed": "1",
+        "surveyAllowed": "0",
+        "tenant_group_id": "null",
+        "tenant_id": "123",
+        "vacant_property_leak_tests": "0",
+        "water_usageAllowed": "1",
+        "ts": 1708408078080,
+        "ms": 91
+    },
+    "devices": {
+        "123456": {
+            "device_status": "Leak Inactive",
+            "device_type": "WIFILeakBotV3",
+            "fw_version": "3.30",
+            "id": "123456",
+            "leakbotId": "5ABCDEF",
+            "tenant_id": "123",
+            "info": {
+                "battery_sm": "GoodBattery",
+                "device_status": "Leak Inactive",
+                "device_status_timestamp": "2022-03-19 13:10:18",
+                "first_name": "FirstName",
+                "message_frequency_sm": "HasSignal",
+                "leak_count_summary": {
+                    "leak_free_days": "722",
+                    "fix_leak_days": "0",
+                    "paused": "0"
+                },
+                "install_environment": [],
+                "ts": 1708408078951,
+                "ms": 322
+            }
+        }
+    }
+}

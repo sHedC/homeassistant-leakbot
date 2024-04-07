@@ -31,6 +31,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
         """Initialize."""
         self.client = client
         self.entry_id = entry_id
+
         super().__init__(
             hass=hass,
             logger=LOGGER,

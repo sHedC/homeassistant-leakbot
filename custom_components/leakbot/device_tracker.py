@@ -10,6 +10,8 @@ from .const import DOMAIN
 from .coordinator import LeakbotDataUpdateCoordinator
 from .entity import LeakbotEntity
 
+# TODO: Find out abut callback restore_entities and add_new_entities (ruckus_unleashed)
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -37,14 +39,13 @@ class LeadbotDevice(LeakbotEntity, ScannerEntity):
         device: dict[str, any],
     ):
         """Initialise Leakbot Device Entity."""
-        self._device_id = device["id"]
-        super().__init__(coordinator, self._device_id, Platform.DEVICE_TRACKER)
+        super().__init__(Platform.DEVICE_TRACKER, coordinator, device["id"])
         self._attr_icon = "mdi:water-check-outline"
 
     @property
     def source_type(self) -> SourceType | str:
         """Return the source type, eg gps or router, of the device."""
-        return "LeakDetector"
+        return "detector"
 
     @property
     def is_connected(self) -> bool:
@@ -54,10 +55,14 @@ class LeadbotDevice(LeakbotEntity, ScannerEntity):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self.coordinator.data["devices"][self._device_id]["device_status"]
+        return self.get_device_data["device_status"]
 
     @property
     def extra_state_attributes(self):
         """Attributes."""
+        device = self.get_device_data
+
         result = {}
+        result["device_type"] = device["device_type"]
+
         return result
