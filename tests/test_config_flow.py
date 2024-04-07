@@ -7,7 +7,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.const import (
     CONF_PASSWORD,
     CONF_USERNAME,
-    CONF_TOKEN,
 )
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -44,7 +43,6 @@ async def test_form_success(hass: HomeAssistant):
 
     assert setup_result["data"][CONF_PASSWORD] == "hash"
     assert setup_result["data"][CONF_USERNAME] == "user.name"
-    assert setup_result["data"][CONF_TOKEN] == "tokencode"
 
 
 async def test_form_invalid_auth(hass: HomeAssistant):
@@ -81,7 +79,6 @@ async def test_form_reauth(hass: HomeAssistant):
         data={
             CONF_PASSWORD: "hash",
             CONF_USERNAME: "user.name",
-            CONF_TOKEN: "tokencode",
         },
         unique_id="111010202002020",
     )

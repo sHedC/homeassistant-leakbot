@@ -23,7 +23,6 @@ from custom_components.leakbot.api import (
 VALID_LOGIN = {
     "username": "value_user@address.com",
     "password": "realpassword",
-    "token": "correcttoken",
 }
 
 
@@ -131,7 +130,7 @@ class LeakbotAPIMock:
         if self._token == token and self._token == lctoken:
             response_text = load_fixture("device_mydevicelist.json")
         else:
-            response_text = ""
+            response_text = load_fixture("account_invalid_token.json")
 
         return Response(
             text=response_text,
@@ -147,7 +146,7 @@ class LeakbotAPIMock:
         if self._token == token and self._token == lctoken:
             response_text = load_fixture("account_myread.json")
         else:
-            response_text = ""
+            response_text = load_fixture("account_invalid_token.json")
 
         return Response(
             text=response_text,
@@ -163,7 +162,7 @@ class LeakbotAPIMock:
         if self._token == token and self._token == lctoken:
             response_text = load_fixture("address_myread.json")
         else:
-            response_text = ""
+            response_text = load_fixture("account_invalid_token.json")
 
         return Response(
             text=response_text,
@@ -179,7 +178,7 @@ class LeakbotAPIMock:
         if self._token == token and self._token == lctoken:
             response_text = load_fixture("tenant_myview.json")
         else:
-            response_text = ""
+            response_text = load_fixture("account_invalid_token.json")
 
         return Response(
             text=response_text,

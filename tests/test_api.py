@@ -7,6 +7,7 @@ from aiohttp.web import Application
 from custom_components.leakbot.api import (
     LeakbotApiClient,
     LeakbotApiClientAuthenticationError,
+    LeakbotApiClientTokenError,
 )
 
 from .conftest import ClientSessionGenerator, VALID_LOGIN
@@ -41,6 +42,23 @@ async def test_login_pass(
     assert api.is_connected
     assert result["token"]
     assert result["tenant_id"]
+
+
+async def test_token_error(
+    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
+):
+    """Test the API Token Error."""
+    session = await aiohttp_client(leakbot_api)
+    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+
+    result = await api.login()
+    assert api.is_connected
+    assert result["token"]
+    assert result["tenant_id"]
+
+    api._token = "INVALID"
+    with pytest.raises(LeakbotApiClientTokenError):
+        await api.get_device_list()
 
 
 async def test_device_list(

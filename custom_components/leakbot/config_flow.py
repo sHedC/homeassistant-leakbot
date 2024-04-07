@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, CONF_TOKEN
+from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
@@ -35,7 +35,6 @@ class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             )
 
             if "token" in result:
-                user_input[CONF_TOKEN] = result[CONF_TOKEN]
                 return self.async_create_entry(
                     title=user_input[CONF_USERNAME],
                     data=user_input,
@@ -83,7 +82,6 @@ class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             )
 
             if "token" in result:
-                user_input[CONF_TOKEN] = result[CONF_TOKEN]
                 self.hass.config_entries.async_update_entry(
                     self.reauth_entry, data={**entry_data, **user_input}
                 )

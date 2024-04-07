@@ -37,6 +37,10 @@ class LeakbotApiClientAuthenticationError(LeakbotApiClientError):
     """Exception to indicate an authentication error."""
 
 
+class LeakbotApiClientTokenError(LeakbotApiClientError):
+    """Exception to indicate token is invalid."""
+
+
 class LeakbotApiClient:
     """Leakbot API Client Connector."""
 
@@ -45,19 +49,13 @@ class LeakbotApiClient:
         username: str,
         password: str,
         session: ClientSession,
-        token: str | None = None,
     ) -> None:
         """Initialize API Client."""
         self._session = session
         self._username = username
         self._password = password
         self._connected = False
-
-        if token:
-            self._token = token
-            self._connected = True
-        else:
-            self._token = "randomtoken"
+        self._token = "randomtoken"
 
     async def _post(self, url: str, params: dict[str, any]) -> dict[str, any]:
         """Perform post to the api."""
@@ -89,6 +87,12 @@ class LeakbotApiClient:
             raise LeakbotApiClientCommunicationError(
                 response.status, response_text
             ) from ex
+
+        if "error" in response_json:
+            if response_json["error"] == 52:
+                raise LeakbotApiClientTokenError(
+                    response_json["error"], response_json["description"]
+                )
 
         return response_json
 

@@ -25,12 +25,20 @@ class LeakbotEntity(CoordinatorEntity):
         """Initialize."""
         super().__init__(coordinator)
         self._device_id = id
-        if key:
-            self._attr_unique_id = slugify(f"{DOMAIN}_{id}_{key}")
-        else:
-            self._attr_unique_id = slugify(f"{DOMAIN}_{id}")
+        self._leakbot_id = self.get_device_data["leakbotId"]
 
+        if key:
+            self._attr_unique_id = slugify(f"{DOMAIN}_{self._leakbot_id}_{key}")
+        else:
+            self._attr_unique_id = slugify(f"{DOMAIN}_{self._leakbot_id}")
         self.entity_id = f"{platform}.{self._attr_unique_id}"
+
+        # If the entity is found in existing entities, remove it.
+        if platform in coordinator.old_entries:
+            if self.entity_id in coordinator.old_entries[platform]:
+                entity_ids: list[str] = coordinator.old_entries[platform]
+                entity_index = entity_ids.index(self.entity_id)
+                entity_ids.pop(entity_index)
 
     @property
     def get_device_data(self) -> dict[str, any]:
@@ -43,9 +51,10 @@ class LeakbotEntity(CoordinatorEntity):
         """Return the device information."""
         return DeviceInfo(
             identifiers={(DOMAIN, self._device_id)},
-            name=NAME,
+            name=f"{NAME} {self._leakbot_id}",
             manufacturer=NAME,
             model=self.get_device_data["device_type"],
             sw_version=self.get_device_data["fw_version"],
+            hw_version=self._leakbot_id,
             via_device=(DOMAIN, self.get_device_data["leakbotId"]),
         )

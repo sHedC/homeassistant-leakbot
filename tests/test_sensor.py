@@ -51,6 +51,6 @@ async def test_sensor_setup(
         hass.states.async_entity_ids_count(Platform.SENSOR) > 0
     ), "Sensors Failed to Create"
 
-    state = hass.states.get("sensor.leakbot_123456_device_status")
+    state = hass.states.get("sensor.leakbot_5abcdef_device_status")
     assert state.state == "Leak Inactive"
     assert state.name == "Device Status"
