@@ -3,7 +3,6 @@
 ![Project Maintenance][maintenance-shield]
 [![GitHub Activity][commits-shield]][commits]
 
-# [![hacs][hacsbadge]][hacs]
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
 [![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
