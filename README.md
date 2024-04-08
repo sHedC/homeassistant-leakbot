@@ -18,9 +18,9 @@ Latest -
 [![workflow-lastest]][workflows]
 [![issues][issues-shield]][issues-link]
 
+## Please Read
 
-> :warning: **Leakbot Only Allows One Login:**: If you use this integration it will log you out of the mobile app. Leakbot only allows one access token to be valid at one time, this integration deals with that, if you log into the mobile the integration will renew the access token on next refresh.
-
+> :warning: **Leakbot Only Allows One Login:**: If you use this integration the token your mobile app is connected to becomes invalid and you get logged out. This happens also if you re-log back into the app it invalidates the token for the integration, however the integration should automatically re-authenticate.
 
 ## About the Integration
 ![leakbot][leakbotimg]
@@ -28,7 +28,10 @@ Latest -
 An integration for homeassistant (via HACS) to connect to Leakbot via the leakbot cloud api.
 
 NOTES:
-- TBC
+- The integration updates every two hours at this time, it is not currently changable. The device seems to only update a couple of times a day.
+- Only a device tracker, battery, leak and leak free days is currently provded.
+- For some reason leak free days is showing in hours, not sure why.
+- Still work in progress.
 
 ## Installation
 The preferred and easiest way to install this is from the Home Assistant Community Store (HACS).  Follow the link in the badge above for details on HACS.
@@ -36,11 +39,7 @@ The preferred and easiest way to install this is from the Home Assistant Communi
 Go to HACS and integraitons, then select to download Leakbot from HACS.
 
 ## Configuration
-Go to the Home Assistant UI, go to "Configuration" -> "Integrations" click "+" and search for "Leakbot"
-- Select the correct login version, if not sure try online directly to see which server you use.
-- Once connected you can change the refresh time in the options
-
-TBC
+Go to the Home Assistant UI, go to "Configuration" -> "Integrations" click "+" and search for "Leakbot" follow the configuration screen.
 
 #### Beta Versions
 If you want to see Beta versions open the Leakbot in HACS, after download, and click the three dots on the top right and select re-download. Here you will se an option to see beta versions.
@@ -68,9 +67,14 @@ To install manually, if you really want to: I won't support this.
 6. Restart Home Assistant
 7. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "Leakbot"
 
-## Example HASS View
-TBCDefaultgs to avoid permission issues.
-- Update BUILD_TYPE to "run" to run an instance of Home Assistant and "dev" to do development with pytest.
+## Development Environment
+I have set this up to be able to run development or testing using Visual Studio Code with Docker or Podman in line with the integration blueprint.
+
+To setup just copy the .devcontainer-template.json to .devcontainer.json
+
+If using podman uncomment the section runArgs to avoid permission issues.
+Update BUILD_TYPE to "run" to run an instance of Home Assistant and "dev" to do development with pytest.
+
 
 ## Contributions are welcome!
 If you want to contribute to this please read the [Contribution guidelines](CONTRIBUTING.md)

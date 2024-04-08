@@ -44,7 +44,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             hass=hass,
             logger=LOGGER,
             name=DOMAIN,
-            update_interval=timedelta(minutes=1),
+            update_interval=timedelta(minutes=240),
         )
 
         self.old_entries: dict[str, list[str]] = {}
