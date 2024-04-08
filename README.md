@@ -79,7 +79,7 @@ Or just raise a feature request, would be useful to have a use-case, what system
 
 ***
 
-[leakbotimg]: https://github.com/home-assistant/brands/blob/master/custom_integrations/leakbot/logo%402x.png
+[leakbotimg]: https://github.com/home-assistant/brands/blob/master/custom_integrations/leakbot/logo.png
 [leakbot]: https://github.com/sHedC/homeassistant-leakbot
 [commits-shield]: https://img.shields.io/github/commit-activity/y/sHedC/homeassistant-leakbot?style=for-the-badge
 [commits]: https://github.com/shedc/homeassistant-leakbot/commits/main
