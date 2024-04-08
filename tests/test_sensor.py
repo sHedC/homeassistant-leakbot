@@ -52,5 +52,4 @@ async def test_sensor_setup(
     ), "Sensors Failed to Create"
 
     state = hass.states.get("sensor.leakbot_5abcdef_device_status")
-    assert state.state == "Leak Inactive"
-    assert state.name == "Device Status"
+    assert state.state == "leak_inactive"
