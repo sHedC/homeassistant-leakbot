@@ -14,5 +14,12 @@
             "connection": "Unable to connect to the server.",
             "unknown": "Unknown error occurred."
         }
+    },
+    "entity": {
+        "sensor": {
+            "battery_sm": {
+                "GoodBattery": "High"
+            }
+        }
     }
 }
