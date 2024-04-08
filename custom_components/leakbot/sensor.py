@@ -8,6 +8,7 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorEntityDescription,
     SensorDeviceClass,
+    SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform, UnitOfTime
@@ -23,28 +24,35 @@ from .entity import LeakbotEntity
 class LeakbotSensorEntityDescription(SensorEntityDescription):
     """Leakbot Sensor Entity Description."""
 
+    data_type: str = "str"
     lookup_keys: str = None
 
 
 ENTITY_DESCRIPTIONS = (
     LeakbotSensorEntityDescription(
         key="device_status",
-        name="Device Status",
+        translation_key="device_status",
+        has_entity_name=True,
         icon="mdi:water-check-outline",
     ),
     LeakbotSensorEntityDescription(
         lookup_keys="info",
         key="battery_sm",
-        name="Battery Status",
-        icon="mdi:battery80",
+        translation_key="battery_sm",
+        has_entity_name=True,
+        icon="mdi:battery",
     ),
     LeakbotSensorEntityDescription(
         lookup_keys="info.leak_count_summary",
         key="leak_free_days",
-        name="Leak Free Days",
+        translation_key="leak_free_days",
+        has_entity_name=True,
+        data_type="int",
+        state_class=SensorStateClass.TOTAL_INCREASING,
         device_class=SensorDeviceClass.DURATION,
         native_unit_of_measurement=UnitOfTime.DAYS,
         suggested_unit_of_measurement=UnitOfTime.DAYS,
+        unit_of_measurement=UnitOfTime.DAYS,
     ),
 )
 
@@ -80,7 +88,7 @@ class LeakbotSensor(LeakbotEntity, SensorEntity):
         self.entity_description: LeakbotSensorEntityDescription = entity_description
 
     @property
-    def native_value(self) -> str:
+    def native_value(self):
         """Return the native value of the sensor."""
         sub_data = self.get_device_data
 
@@ -89,4 +97,9 @@ class LeakbotSensor(LeakbotEntity, SensorEntity):
             for sub_key in self.entity_description.lookup_keys.split("."):
                 sub_data = sub_data[sub_key]
 
-        return sub_data[self._key]
+        return_value = sub_data[self.entity_description.key]
+        match self.entity_description.data_type:
+            case "int":
+                return int(return_value)
+            case _:
+                return str(return_value).lower()

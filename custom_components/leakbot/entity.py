@@ -25,7 +25,6 @@ class LeakbotEntity(CoordinatorEntity):
         """Initialize."""
         super().__init__(coordinator)
         self._device_id = id
-        self._key = key
         self._leakbot_id = self.get_device_data["leakbotId"]
 
         if key:
