@@ -17,8 +17,10 @@
     },
     "entity": {
         "sensor": {
-            "battery_sm": {
-                "GoodBattery": "High"
+            "state": {
+                "battery_sm": {
+                    "GoodBattery": "High"
+                }
             }
         }
     }
