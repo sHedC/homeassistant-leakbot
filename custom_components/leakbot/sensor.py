@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorEntityDescription,
@@ -14,6 +15,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import slugify
 
 from .const import DOMAIN
 from .coordinator import LeakbotDataUpdateCoordinator
@@ -102,4 +104,4 @@ class LeakbotSensor(LeakbotEntity, SensorEntity):
             case "int":
                 return int(return_value)
             case _:
-                return str(return_value).lower()
+                return slugify(return_value)
