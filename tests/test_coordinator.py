@@ -42,8 +42,28 @@ async def test_coordinator_data(
     coordinator = LeakbotDataUpdateCoordinator(hass, api, entry)
     await coordinator.async_refresh()
 
+    assert coordinator.is_connected
     assert coordinator.data
     assert "123456" in coordinator.data["devices"]
+
+
+async def test_auth_error(
+    hass: HomeAssistant,
+    leakbot_api: Application,
+    aiohttp_client: ClientSessionGenerator,
+):
+    """Test the Data Update works."""
+    session = await aiohttp_client(leakbot_api)
+    entry = MockConfigEntry(domain=DOMAIN, data=VALID_LOGIN)
+    api = LeakbotApiClient(
+        VALID_LOGIN["username"],
+        "invalidpass",
+        session,
+    )
+
+    coordinator = LeakbotDataUpdateCoordinator(hass, api, entry)
+    await coordinator.async_refresh()
+    assert not coordinator.is_connected
 
 
 async def test_token_error(

@@ -37,7 +37,8 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
     ) -> None:
         """Initialize."""
         self.client = client
-        self.entry = entry
+        self._entry = entry
+        self._connected = False
 
         super().__init__(
             hass=hass,
@@ -58,6 +59,11 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                 self.old_entries[reg_entity.domain] = []
             self.old_entries[reg_entity.domain].append(reg_entity.entity_id)
 
+    @property
+    def is_connected(self) -> bool:
+        """Return true if connected."""
+        return self._connected
+
     def remove_old_entities(self, platform: str) -> None:
         """Remove obsolete entities."""
         if platform in self.old_entries:
@@ -69,24 +75,31 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                 )
                 self.entity_registry.async_remove(entity_id)
 
-    async def _async_update_data(self):
-        """Update data via library."""
+    async def _client_login(self) -> None:
+        """Login to the API Client."""
+        self._connected = False
         try:
-            # Test Token is still valid
-            await self.client.get_account_myread()
+            await self.client.login()
+            self._connected = True
         except LeakbotApiClientAuthenticationError as exception:
             raise ConfigEntryAuthFailed(exception) from exception
-        except LeakbotApiClientTokenError:
-            try:
-                await self.client.login()
-            except LeakbotApiClientAuthenticationError as exception:
-                raise ConfigEntryAuthFailed(exception) from exception
-            except LeakbotApiClientCommunicationError as exception:
-                raise UpdateFailed(exception) from exception
-            except LeakbotApiClientError as exception:
-                raise UpdateFailed(exception) from exception
+        except LeakbotApiClientCommunicationError as exception:
+            raise UpdateFailed(exception) from exception
         except LeakbotApiClientError as exception:
             raise UpdateFailed(exception) from exception
+
+    async def _async_update_data(self):
+        """Update data via library."""
+        if not self._connected:
+            await self._client_login()
+        else:
+            try:
+                # Test Token is still valid
+                await self.client.get_account_myread()
+            except LeakbotApiClientTokenError:
+                await self._client_login()
+            except LeakbotApiClientError as exception:
+                raise UpdateFailed(exception) from exception
 
         try:
             result_data = self.data
@@ -114,7 +127,5 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
 
             # Water Usage
             return result_data
-        except LeakbotApiClientAuthenticationError as exception:
-            raise ConfigEntryAuthFailed(exception) from exception
         except LeakbotApiClientError as exception:
             raise UpdateFailed(exception) from exception
