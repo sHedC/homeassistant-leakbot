@@ -28,10 +28,11 @@ Latest -
 An integration for homeassistant (via HACS) to connect to Leakbot via the leakbot cloud api.
 
 NOTES:
-- The integration updates every two hours at this time, it is not currently changable. The device seems to only update a couple of times a day.
-- Only a device tracker, battery, leak and leak free days is currently provded.
-- For some reason leak free days is showing in hours, not sure why.
-- Still work in progress.
+- The integration updates every four hours at this time, it is not currently changable. I only see the the device connecting once or twice a day, not sure how long it takes to detect a leak or what it does.
+- There are three sensors: battery status, leak status and leak free days. There is also a device tracker but might remove that as seems pointless.
+- For some reason leak free days is showing in the UI hours, not sure why as its setup in days.
+- Some translation is done as don't know what other options there are, example goodbattery not seen other states to setup.
+- Diagnotic download is not yet available.
 
 ## Installation
 The preferred and easiest way to install this is from the Home Assistant Community Store (HACS).  Follow the link in the badge above for details on HACS.
@@ -74,6 +75,48 @@ To setup just copy the .devcontainer-template.json to .devcontainer.json
 
 If using podman uncomment the section runArgs to avoid permission issues.
 Update BUILD_TYPE to "run" to run an instance of Home Assistant and "dev" to do development with pytest.
+
+Debugging in Pythong 3.12 seems slow to startup:
+To enable vscode debugging a sample /.vscode/launch.json is:
+```
+{
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // Example of Debugging Tests.
+      "name": "Python: Debug Tests",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "purpose": [
+        "debug-test"
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "env": {
+        "PYTEST_ADDOPTS": "--no-cov"
+      }
+    },
+    {
+      // Example of attaching to local debug server
+      "name": "Python: Attach Local",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5678
+      },
+      "pathMappings": [
+        {
+          "localRoot": "${workspaceFolder}",
+          "remoteRoot": "."
+        }
+      ],
+    }
+  ]
+}
+```
 
 
 ## Contributions are welcome!
