@@ -5,6 +5,7 @@
 
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
+[![Leakbot Forum][leakbot-forum-shield]][leakbot-forum]
 [![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
 
 Stable -
@@ -18,7 +19,8 @@ Latest -
 [![issues][issues-shield]][issues-link]
 
 
-> :warning: **Leakbot Not Ready:** Leakbot integraiton is not ready will not work, come back for further updates or watch the forum: https://community.home-assistant.io/t/leakbot-integration/256340/9
+> :warning: **Leakbot Only Allows One Login:**: If you use this integration it will log you out of the mobile app. Leakbot only allows one access token to be valid at one time, this integration deals with that, if you log into the mobile the integration will renew the access token on next refresh.
+
 
 ## About the Integration
 ![leakbot][leakbotimg]
@@ -77,7 +79,7 @@ Or just raise a feature request, would be useful to have a use-case, what system
 
 ***
 
-[leakbotimg]: https://github.com/sHedC/homeassistant-leakbot/raw/main/leakbot.png
+[leakbotimg]: https://github.com/home-assistant/brands/blob/master/custom_integrations/leakbot/logo%402x.png
 [leakbot]: https://github.com/sHedC/homeassistant-leakbot
 [commits-shield]: https://img.shields.io/github/commit-activity/y/sHedC/homeassistant-leakbot?style=for-the-badge
 [commits]: https://github.com/shedc/homeassistant-leakbot/commits/main
@@ -93,6 +95,9 @@ Or just raise a feature request, would be useful to have a use-case, what system
 [discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
 [forum]: https://community.home-assistant.io/
+
+[leakbot-forum-shield]: https://img.shields.io/badge/leakbot-forum-brightgreen.svg?style=for-the-badge
+[leakbot-forum]: https://community.home-assistant.io/t/leakbot-integration
 
 [codecov-shield]: https://codecov.io/gh/sHedC/homeassistant-leakbot/branch/main/graph/badge.svg?token=Z7VVO035GY
 [codecov-link]: https://codecov.io/gh/sHedC/homeassistant-leakbot
