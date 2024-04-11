@@ -4,7 +4,6 @@ from unittest.mock import patch
 import pytest
 
 from aiohttp.web import Application
-from datetime import datetime
 
 from homeassistant.core import HomeAssistant
 from homeassistant.const import Platform
