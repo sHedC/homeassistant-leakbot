@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from decimal import Decimal
 from dataclasses import dataclass
-
+from datetime import date, datetime
 
 from homeassistant.components.sensor import (
     SensorEntity,
@@ -15,6 +16,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.typing import StateType
 from homeassistant.util import slugify
 
 from .const import DOMAIN
@@ -56,6 +58,15 @@ ENTITY_DESCRIPTIONS = (
         suggested_unit_of_measurement=UnitOfTime.DAYS,
         unit_of_measurement=UnitOfTime.DAYS,
     ),
+    LeakbotSensorEntityDescription(
+        lookup_keys="last_update",
+        key="messageTimestamp",
+        translation_key="last_update",
+        has_entity_name=True,
+        data_type="timestamp",
+        state_class=SensorDeviceClass.TIMESTAMP,
+        device_class=SensorDeviceClass.TIMESTAMP,
+    ),
 )
 
 
@@ -90,7 +101,7 @@ class LeakbotSensor(LeakbotEntity, SensorEntity):
         self.entity_description: LeakbotSensorEntityDescription = entity_description
 
     @property
-    def native_value(self):
+    def native_value(self) -> StateType | date | datetime | Decimal:
         """Return the native value of the sensor."""
         sub_data = self.get_device_data
 
@@ -103,5 +114,8 @@ class LeakbotSensor(LeakbotEntity, SensorEntity):
         match self.entity_description.data_type:
             case "int":
                 return int(return_value)
+            case "timestamp":
+                # Format: "2022-03-19 13:10:18"
+                return datetime.fromisoformat(f"{return_value}+00:00")
             case _:
                 return slugify(return_value)

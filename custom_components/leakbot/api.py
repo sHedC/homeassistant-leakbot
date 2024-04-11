@@ -17,6 +17,8 @@ API_ACCOUNT_MYREAD = "/v1.0/User/Account/MyRead/"
 API_ADDRESS_MYREAD = "/v1.0/User/Address/MyRead/"
 API_TENANT_MYVIEW = "/v1.0/User/Tenant/MyView/"
 API_DEVICE_MYVIEW = "/v1.0/Device/Device/MyView/"
+API_DEVICE_MYMSG = "/v1.0/Device/Device/MyListMessagesForDevice"
+API_DEVICE_WATERUSAGE = "/v1.0/Device/Device/WaterUsage"
 
 
 class LeakbotApiClientError(Exception):
@@ -123,7 +125,6 @@ class LeakbotApiClient:
         params = {"token": self._token}
         result_json = await self._post(urljoin(API_URL, API_DEVICE_LIST), params)
 
-        # TODO: Handle Error responses (invalid token)
         return result_json
 
     async def get_account_myread(self) -> dict[str, any]:
@@ -131,7 +132,6 @@ class LeakbotApiClient:
         params = {"token": self._token}
         result_json = await self._post(urljoin(API_URL, API_ACCOUNT_MYREAD), params)
 
-        # TODO: Handle Error responses (invalid token)
         return result_json
 
     async def get_address_myread(self) -> dict[str, any]:
@@ -139,7 +139,6 @@ class LeakbotApiClient:
         params = {"token": self._token}
         result_json = await self._post(urljoin(API_URL, API_ADDRESS_MYREAD), params)
 
-        # TODO: Handle Error responses (invalid token)
         return result_json
 
     async def get_tenant_myview(self) -> dict[str, any]:
@@ -147,7 +146,6 @@ class LeakbotApiClient:
         params = {"token": self._token}
         result_json = await self._post(urljoin(API_URL, API_TENANT_MYVIEW), params)
 
-        # TODO: Handle Error responses (invalid token)
         return result_json
 
     async def get_device_data(self, device_id: str) -> dict[str, any]:
@@ -155,7 +153,20 @@ class LeakbotApiClient:
         params = {"token": self._token, "LbDevice_ID": device_id}
         result_json = await self._post(urljoin(API_URL, API_DEVICE_MYVIEW), params)
 
-        # TODO: Handle Error responses (invalid token)
+        return result_json
+
+    async def get_device_messages(self, device_id: str) -> dict[str, any]:
+        """Retrieve the Device Messages."""
+        params = {"token": self._token, "LbDevice_ID": device_id, "fetch_size": 1}
+        result_json = await self._post(urljoin(API_URL, API_DEVICE_MYMSG), params)
+
+        return result_json
+
+    async def get_device_water_usage(self, device_id: str) -> dict[str, any]:
+        """Retrieve the Device Water Usage."""
+        params = {"token": self._token, "LbDevice_ID": device_id, "timeZoneOffset": 60}
+        result_json = await self._post(urljoin(API_URL, API_DEVICE_MYMSG), params)
+
         return result_json
 
     async def async_get_data(self) -> any:

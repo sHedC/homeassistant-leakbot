@@ -44,7 +44,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             hass=hass,
             logger=LOGGER,
             name=DOMAIN,
-            update_interval=timedelta(minutes=240),
+            update_interval=timedelta(minutes=60),
         )
 
         self.old_entries: dict[str, list[str]] = {}
@@ -124,6 +124,8 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             # Update Device Information and Water Usage
             for device_id, device in result_data["devices"].items():
                 device["info"] = await self.client.get_device_data(device_id)
+                messages = await self.client.get_device_messages(device_id)
+                device["last_update"] = messages["list"]["record"][0]
 
             # Water Usage
             return result_data

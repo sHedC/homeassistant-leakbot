@@ -133,3 +133,39 @@ async def test_device_myview(
     for device in devices["IDs"]:
         device_data = await api.get_device_data(device["id"])
         assert device_data
+
+
+async def test_device_messages(
+    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
+):
+    """Test getting the device mesages list."""
+    session = await aiohttp_client(leakbot_api)
+    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+
+    await api.login()
+    assert api.is_connected
+
+    devices = await api.get_device_list()
+    assert devices
+
+    for device in devices["IDs"]:
+        device_data = await api.get_device_messages(device["id"])
+        assert device_data
+
+
+async def test_device_waterusage(
+    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
+):
+    """Test getting the device water usage."""
+    session = await aiohttp_client(leakbot_api)
+    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+
+    await api.login()
+    assert api.is_connected
+
+    devices = await api.get_device_list()
+    assert devices
+
+    for device in devices["IDs"]:
+        device_data = await api.get_device_water_usage(device["id"])
+        assert device_data

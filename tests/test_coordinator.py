@@ -46,6 +46,9 @@ async def test_coordinator_data(
     assert coordinator.data
     assert "123456" in coordinator.data["devices"]
 
+    device = coordinator.data["devices"]["123456"]
+    assert device["last_update"]["messageTimestamp"] == "2024-04-10 00:18:15"
+
 
 async def test_auth_error(
     hass: HomeAssistant,

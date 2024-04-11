@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from aiohttp.web import Application
+from datetime import datetime
 
 from homeassistant.core import HomeAssistant
 from homeassistant.const import Platform
@@ -53,3 +54,6 @@ async def test_sensor_setup(
 
     state = hass.states.get("sensor.leakbot_5abcdef_device_status")
     assert state.state == "leak_inactive"
+
+    state = hass.states.get("sensor.leakbot_5abcdef_messageTimestamp")
+    assert state.state == "2024-04-10T00:18:15+00:00"

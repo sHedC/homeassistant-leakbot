@@ -18,6 +18,8 @@ from custom_components.leakbot.api import (
     API_DEVICE_LIST,
     API_DEVICE_MYVIEW,
     API_TENANT_MYVIEW,
+    API_DEVICE_MYMSG,
+    API_DEVICE_WATERUSAGE,
 )
 
 VALID_LOGIN = {
@@ -90,6 +92,8 @@ async def leakbot_api(hass: HomeAssistant) -> Application:
     app.router.add_route("POST", API_ADDRESS_MYREAD, api.address_myread)
     app.router.add_route("POST", API_TENANT_MYVIEW, api.tenant_myview)
     app.router.add_route("POST", API_DEVICE_MYVIEW, api.device_myview)
+    app.router.add_route("POST", API_DEVICE_MYMSG, api.device_messages)
+    app.router.add_route("POST", API_DEVICE_WATERUSAGE, api.device_waterusage)
 
     async_setup_forwarded(app, True, [])
     return app
@@ -195,7 +199,41 @@ class LeakbotAPIMock:
             device_id = data["LbDevice_ID"]
             response_text = load_fixture(f"device_myview_{device_id}.json")
         else:
-            response_text = ""
+            response_text = load_fixture("account_invalid_token.json")
+
+        return Response(
+            text=response_text,
+            content_type="application/json",
+        )
+
+    async def device_messages(self, request: Request) -> Response:
+        """Mock API to get Device Messages."""
+        data = await request.json()
+        token = data["token"]
+        lctoken = request.cookies.get("lctoken")
+
+        if self._token == token and self._token == lctoken:
+            device_id = data["LbDevice_ID"]
+            response_text = load_fixture(f"device_mylistmsg4device_{device_id}.json")
+        else:
+            response_text = load_fixture("account_invalid_token.json")
+
+        return Response(
+            text=response_text,
+            content_type="application/json",
+        )
+
+    async def device_waterusage(self, request: Request) -> Response:
+        """Mock API to get Device Water Usage."""
+        data = await request.json()
+        token = data["token"]
+        lctoken = request.cookies.get("lctoken")
+
+        if self._token == token and self._token == lctoken:
+            device_id = data["LbDevice_ID"]
+            response_text = load_fixture(f"device_waterusage_{device_id}.json")
+        else:
+            response_text = load_fixture("account_invalid_token.json")
 
         return Response(
             text=response_text,
