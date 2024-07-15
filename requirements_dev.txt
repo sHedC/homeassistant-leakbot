@@ -1,6 +1,6 @@
 pip>=21.3.1
 bumpver==2023.1129
 colorlog==6.8.2
-ruff==0.4.6
+ruff==0.5.2
 chardet==5.2.0
 pytest-homeassistant-custom-component==0.13.127
