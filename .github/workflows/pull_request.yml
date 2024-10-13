@@ -1,8 +1,8 @@
 name: Pull Request
 on: pull_request
 
+concurrency: leakbot
 permissions:
-  concurrency: leakbot
   contents: write
   pull-requests: write
 
