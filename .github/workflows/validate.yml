@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - "main"
+  workflow_call:
 
 jobs:
   hassfest: # https://developers.home-assistant.io/blog/2020/04/16/hassfest
