@@ -52,6 +52,7 @@ ENTITY_DESCRIPTIONS = (
         translation_key="leak_free_days",
         has_entity_name=True,
         data_type="int",
+        suggested_display_precision=0,
         state_class=SensorStateClass.TOTAL_INCREASING,
         device_class=SensorDeviceClass.DURATION,
         native_unit_of_measurement=UnitOfTime.DAYS,
@@ -64,7 +65,6 @@ ENTITY_DESCRIPTIONS = (
         translation_key="last_update",
         has_entity_name=True,
         data_type="timestamp",
-        state_class=SensorDeviceClass.TIMESTAMP,
         device_class=SensorDeviceClass.TIMESTAMP,
     ),
 )
