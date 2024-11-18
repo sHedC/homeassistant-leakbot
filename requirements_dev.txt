@@ -1,5 +1,5 @@
 pip>=21.3.1
-bumpver==2023.1129
+bumpver==2024.1130
 colorlog==6.9.0
 ruff==0.7.4
 chardet==5.2.0
