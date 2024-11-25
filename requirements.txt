@@ -5,5 +5,5 @@ numpy==2.1.3
 bumpver==2024.1130
 ruff==0.8.0
 chardet==5.2.0
-debugpy==1.8.8
+debugpy==1.8.9
 turbojpeg==0.0.2
