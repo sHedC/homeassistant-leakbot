@@ -3,4 +3,4 @@ bumpver==2024.1130
 colorlog==6.9.0
 ruff==0.8.3
 chardet==5.2.0
-pytest-homeassistant-custom-component==0.13.193
+pytest-homeassistant-custom-component==0.13.195
