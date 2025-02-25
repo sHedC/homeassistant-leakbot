@@ -9,7 +9,9 @@ cd "$(dirname "$0")/.."
 if [ ${BUILD_TYPE} == "run" ]; then
     echo -e "${RED}Start-up first time can take ages as downloading modules during setup.${NORMAL}"
     echo
-    hass -c . --debug
+
+    export PYTHONPATH="${PYTHONPATH}:${PWD}/custom_components"
+    hass --config "${PWD}" --debug
 else
     echo -e "${RED}Docker Mode: Build Type is not 'run', can't start hass. Build Type is ${BUILD_TYPE}.${NORMAL}"
 fi
