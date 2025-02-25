@@ -53,7 +53,16 @@
             }
         }
     },
-    "remoteUser": "vscode",
+    "features": {
+        "ghcr.io/devcontainers-extra/features/apt-packages:1": {
+            "packages": [
+                "ffmpeg",
+                "libturbojpeg0",
+                "libpcap-dev"
+            ]
+        }
+    },
+     "remoteUser": "vscode",
     "containerUser": "vscode",
     //"runArgs": [
     //    "--userns=keep-id"
