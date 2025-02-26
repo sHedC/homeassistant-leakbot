@@ -5,5 +5,5 @@ LOGGER: Logger = getLogger(__package__)
 
 NAME = "Leakbot"
 DOMAIN = "leakbot"
-VERSION = "0.1.1-b1"
+VERSION = "0.1.1-b2"
 ATTRIBUTION = "Data provided by https://leakbot.io"
