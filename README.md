@@ -28,7 +28,8 @@ Latest -
 An integration for homeassistant (via HACS) to connect to Leakbot via the leakbot cloud api.
 
 NOTES:
-- The integration updates every four hours at this time, it is not currently changable. I only see the the device connecting once or twice a day, not sure how long it takes to detect a leak or what it does.
+- For a new install of the Leakbot device it can take 24 hours before the API will start returning data, before that you will see invalid values.
+- The integration updates every four hours at this time, it is not currently changable, it only updates once a day as normal, not sure if a leak forces update.
 - There are three sensors: battery status, leak status and leak free days. There is also a device tracker but might remove that as seems pointless.
 - For some reason leak free days is showing in the UI hours, not sure why as its setup in days.
 - Some translation is done as don't know what other options there are, example goodbattery not seen other states to setup.

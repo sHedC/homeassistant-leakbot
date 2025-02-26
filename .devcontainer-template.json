@@ -6,7 +6,7 @@
 */
 {
     "name": "sHedC/homeassistant-leakbot",
-    "image": "mcr.microsoft.com/vscode/devcontainers/python:1-3.12",
+    "image": "mcr.microsoft.com/vscode/devcontainers/python:1-3.13",
     "postCreateCommand": "scripts/setup",
     "forwardPorts": [
         8123
@@ -40,6 +40,7 @@
                 "python.pythonPath": "/usr/local/bin/python",
                 "python.defaultInterpreterPath": "/usr/local/bin/python",
                 "python.analysis.autoSearchPaths": false,
+                "python.testing.pytestArgs": [],
                 "python.testing.unittestEnabled": false,
                 "python.testing.pytestEnabled": true,
                 "python.experiments.enabled": false,
@@ -52,7 +53,16 @@
             }
         }
     },
-    "remoteUser": "vscode",
+    "features": {
+        "ghcr.io/devcontainers-extra/features/apt-packages:1": {
+            "packages": [
+                "ffmpeg",
+                "libturbojpeg0",
+                "libpcap-dev"
+            ]
+        }
+    },
+     "remoteUser": "vscode",
     "containerUser": "vscode",
     //"runArgs": [
     //    "--userns=keep-id"

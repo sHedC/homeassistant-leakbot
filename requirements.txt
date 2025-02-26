@@ -1,9 +1,10 @@
 colorlog==6.9.0
-homeassistant==2024.6.0
+homeassistant==2025.2.0
 pip>=21.3.1
-numpy==2.2.3
-bumpver==2024.1130
+numpy>=2.2.3
+bumpver>=2024.1130
 ruff==0.9.7
 chardet==5.2.0
 debugpy==1.8.12
-turbojpeg==0.0.2
+zlib_ng==0.5.1
+isal==1.7.1
