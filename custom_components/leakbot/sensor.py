@@ -6,6 +6,7 @@ from decimal import Decimal
 from dataclasses import dataclass
 from datetime import date, datetime
 
+from homeassistant.components.recorder.models import StatisticData, StatisticMetaData
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorEntityDescription,
@@ -18,6 +19,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.util import slugify
+
+from homeassistant_historical_sensor import HistoricalSensor, HistoricalState, PollUpdateMixin
 
 from .const import DOMAIN
 from .coordinator import LeakbotDataUpdateCoordinator
@@ -81,6 +84,22 @@ async def async_setup_entry(
         for entity_description in ENTITY_DESCRIPTIONS:
             entities.append(LeakbotSensor(coordinator, device, entity_description))
 
+#        entities.append(
+#            LeakbotHistoricalSensor(
+#                coordinator, device, LeakbotSensorEntityDescription(
+#                    key="water_usage",
+#                    translation_key="water_usage",
+#                    has_entity_name=True,
+#                   suggested_display_precision=0,
+#                    device_class=SensorDeviceClass.COUNT,
+#                    native_unit_of_measurement="leaks",
+#                    suggested_unit_of_measurement="leaks",
+#
+#                    unit_of_measurement="leaks",
+#                )
+#            )
+#       )
+
     async_add_devices(entities, True)
     coordinator.remove_old_entities(Platform.SENSOR)
 
@@ -119,3 +138,41 @@ class LeakbotSensor(LeakbotEntity, SensorEntity):
                 return datetime.fromisoformat(f"{return_value}+00:00")
             case _:
                 return slugify(return_value)
+
+
+class LeakbotHistoricalSensor(PollUpdateMixin, HistoricalSensor, SensorEntity):
+    """Leakbot Historical Sensor class."""
+
+    def __init__(
+        self,
+        coordinator: LeakbotDataUpdateCoordinator,
+        device: dict[str, any],
+        entity_description: LeakbotSensorEntityDescription,
+    ) -> None:
+        """Initialize the historical sensor class."""
+        super().__init__(
+            Platform.SENSOR, coordinator, device["id"], entity_description.key
+        )
+        self.entity_description: LeakbotSensorEntityDescription = entity_description
+
+    async def async_added_to_hass(self) -> None:
+        """Handle the addition of the sensor to Home Assistant."""
+        await super().async_added_to_hass()
+
+    async def async_update_historical(self):
+        """Update the historical data for the sensor."""
+        water_states = [
+            HistoricalState(state=x.state, dt=x.when) for x in self.get_device_data["water_usage"]
+        ]
+        return await super().async_update_historical()
+
+    @property
+    def statistic_id(self) -> str:
+        """Return the statistic ID for the sensor."""
+        return self.entity_id
+
+    def get_statistic_metadata(self) -> StatisticMetaData:
+        """Return the statistic metadata for the sensor."""
+        meta = super().get_statistic_metadata()
+        meta["has_sum"] = True
+        meta["has_mean"] = True

@@ -231,7 +231,7 @@ class LeakbotAPIMock:
 
         if self._token == token and self._token == lctoken:
             device_id = data["LbDevice_ID"]
-            response_text = load_fixture(f"device_waterusage_{device_id}.json")
+            response_text = load_fixture(f"device_waterusage_{device_id}_0.json")
         else:
             response_text = load_fixture("account_invalid_token.json")
 

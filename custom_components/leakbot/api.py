@@ -164,8 +164,8 @@ class LeakbotApiClient:
 
     async def get_device_water_usage(self, device_id: str) -> dict[str, any]:
         """Retrieve the Device Water Usage."""
-        params = {"token": self._token, "LbDevice_ID": device_id, "timeZoneOffset": 60}
-        result_json = await self._post(urljoin(API_URL, API_DEVICE_MYMSG), params)
+        params = {"token": self._token, "LbDevice_ID": device_id}
+        result_json = await self._post(urljoin(API_URL, API_DEVICE_WATERUSAGE), params)
 
         return result_json
 
