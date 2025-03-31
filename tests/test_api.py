@@ -167,5 +167,5 @@ async def test_device_waterusage(
     assert devices
 
     for device in devices["IDs"]:
-        device_data = await api.get_device_water_usage(device["id"])
+        device_data = await api.get_device_water_usage(device["id"], 0)
         assert device_data

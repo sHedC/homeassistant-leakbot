@@ -1,6 +1,7 @@
 """DataUpdateCoordinator for Leakbot."""
-
 from __future__ import annotations
+
+import logging
 
 from datetime import timedelta
 
@@ -24,6 +25,8 @@ from .api import (
     LeakbotApiClientError,
 )
 from .const import DOMAIN, LOGGER
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
@@ -127,7 +130,13 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                 messages = await self.client.get_device_messages(device_id)
                 device["last_update"] = messages["list"]["record"][0]
 
-            # Water Usage
+                # Water Usage
+                device["water_usage"] = await self.client.get_device_water_usage(
+                    device_id,
+                    0
+                )
+
+                _LOGGER.debug("Water Usage: %s", device["water_usage"])
             return result_data
         except LeakbotApiClientError as exception:
             raise UpdateFailed(exception) from exception
