@@ -90,11 +90,11 @@ async def async_setup_entry(
                     key="water_usage",
                     translation_key="water_usage",
                     has_entity_name=True,
-                    suggested_display_precision=0,
+                    name="water_usage",
+                    entity_registry_enabled_default=True,
+                    state_class=None,
                     device_class=SensorDeviceClass.WATER,
                     native_unit_of_measurement=UnitOfVolume.LITERS,
-                    suggested_unit_of_measurement=UnitOfVolume.LITERS,
-                    unit_of_measurement=UnitOfVolume.LITERS,
                 )
             )
         )
@@ -153,6 +153,7 @@ class LeakbotHistoricalSensor(LeakbotEntity, PollUpdateMixin, HistoricalSensor, 
             Platform.SENSOR, coordinator, device["id"], entity_description.key
         )
         self.entity_description: LeakbotSensorEntityDescription = entity_description
+        self._attr_state = None
 
     async def async_added_to_hass(self) -> None:
         """Handle the addition of the sensor to Home Assistant."""
@@ -163,20 +164,17 @@ class LeakbotHistoricalSensor(LeakbotEntity, PollUpdateMixin, HistoricalSensor, 
         water_usage = self.get_device_data["water_usage"]
 
         # Get the current query time and step through history.
-        LOGGER.debug("water query date: %s", water_usage["ts"])
-        LOGGER.debug("water query date: %s", datetime.fromtimestamp(water_usage["ts"]).strftime('%Y-%m-%d %H:%M:%S'))
-
-        query_date = dt.as_local(datetime.fromtimestamp(water_usage["ts"]))
-        query_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        query_date = dt.as_local(datetime.fromtimestamp(water_usage["ts"] / 1000))
+        query_date = query_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        LOGGER.debug("Query Date: %s", query_date)
         water_states = []
         for day in water_usage["days"]:
             water_states.append(
                 HistoricalState(
-                    state=day["details"]["total"],
-                    dt=query_date - timedelta(days=day["offset"])
+                    state=int(day["details"]["total"]),
+                    dt=query_date + timedelta(days=int(day["offset"]))
                 )
             )
-
         self._attr_historical_states = water_states
 
     @property
@@ -188,4 +186,27 @@ class LeakbotHistoricalSensor(LeakbotEntity, PollUpdateMixin, HistoricalSensor, 
         """Return the statistic metadata for the sensor."""
         meta = super().get_statistic_metadata()
         meta["has_sum"] = True
-        meta["has_mean"] = True
+        meta["has_mean"] = False
+
+        return meta
+
+    async def async_calculate_statistic_data(
+        self, hist_states: list[HistoricalState], *, latest: dict | None = None
+    ) -> list[StatisticData]:
+        """Group and calculate statistical data."""
+        accumulated = latest["sum"] if latest else 0
+
+        ret = []
+        for hist_state in hist_states:
+            accumulated += hist_state.state
+            ret.append(
+                StatisticData(
+                    start=hist_state.dt,
+                    end=hist_state.dt + timedelta(days=1),
+                    sum=accumulated,
+                    count=1,
+                    mean=None,
+                )
+            )
+
+        return ret
