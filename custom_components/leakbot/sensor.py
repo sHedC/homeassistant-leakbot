@@ -186,7 +186,7 @@ class LeakbotHistoricalSensor(LeakbotEntity, PollUpdateMixin, HistoricalSensor, 
         """Return the statistic metadata for the sensor."""
         meta = super().get_statistic_metadata()
         meta["has_sum"] = True
-        meta["has_mean"] = False
+        meta["has_mean"] = True
 
         return meta
 
@@ -205,7 +205,7 @@ class LeakbotHistoricalSensor(LeakbotEntity, PollUpdateMixin, HistoricalSensor, 
                     end=hist_state.dt + timedelta(days=1),
                     sum=accumulated,
                     count=1,
-                    mean=None,
+                    mean=hist_state.state,
                 )
             )
 
