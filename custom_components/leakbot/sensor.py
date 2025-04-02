@@ -167,12 +167,35 @@ class LeakbotHistoricalSensor(LeakbotEntity, PollUpdateMixin, HistoricalSensor, 
         query_date = dt.as_local(datetime.fromtimestamp(water_usage["ts"] / 1000))
         query_date = query_date.replace(hour=0, minute=0, second=0, microsecond=0)
         LOGGER.debug("Query Date: %s", query_date)
+
+        # Night - 00:00 to 06:00
+        # Morning - 06:00 to 12:00
+        # Afternoon - 12:00 to 18:00
+        # Evening - 18:00 to 24:00
         water_states = []
         for day in water_usage["days"]:
             water_states.append(
                 HistoricalState(
-                    state=int(day["details"]["total"]),
-                    dt=query_date + timedelta(days=int(day["offset"]))
+                    state=int(day["details"]["night"]),
+                    dt=query_date.replace(hour=0) + timedelta(days=int(day["offset"]))
+                )
+            )
+            water_states.append(
+                HistoricalState(
+                    state=int(day["details"]["morning"]),
+                    dt=query_date.replace(hour=6) + timedelta(days=int(day["offset"]))
+                )
+            )
+            water_states.append(
+                HistoricalState(
+                    state=int(day["details"]["afternoon"]),
+                    dt=query_date.replace(hour=12) + timedelta(days=int(day["offset"]))
+                )
+            )
+            water_states.append(
+                HistoricalState(
+                    state=int(day["details"]["evening"]),
+                    dt=query_date.replace(hour=18) + timedelta(days=int(day["offset"]))
                 )
             )
         self._attr_historical_states = water_states
@@ -186,7 +209,7 @@ class LeakbotHistoricalSensor(LeakbotEntity, PollUpdateMixin, HistoricalSensor, 
         """Return the statistic metadata for the sensor."""
         meta = super().get_statistic_metadata()
         meta["has_sum"] = True
-        meta["has_mean"] = True
+        meta["has_mean"] = False
 
         return meta
 
@@ -194,18 +217,15 @@ class LeakbotHistoricalSensor(LeakbotEntity, PollUpdateMixin, HistoricalSensor, 
         self, hist_states: list[HistoricalState], *, latest: dict | None = None
     ) -> list[StatisticData]:
         """Group and calculate statistical data."""
-        accumulated = latest["sum"] if latest else 0
-
         ret = []
         for hist_state in hist_states:
-            accumulated += hist_state.state
             ret.append(
                 StatisticData(
                     start=hist_state.dt,
-                    end=hist_state.dt + timedelta(days=1),
-                    sum=accumulated,
+                    end=hist_state.dt + timedelta(hours=6),
+                    sum=hist_state.state,
                     count=1,
-                    mean=hist_state.state,
+                    mean=None,
                 )
             )
 
