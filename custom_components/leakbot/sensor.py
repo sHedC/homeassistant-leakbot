@@ -84,20 +84,20 @@ async def async_setup_entry(
         for entity_description in ENTITY_DESCRIPTIONS:
             entities.append(LeakbotSensor(coordinator, device, entity_description))
 
-        entities.append(
-            LeakbotHistoricalSensor(
-                coordinator, device, LeakbotSensorEntityDescription(
-                    key="water_usage",
-                    translation_key="water_usage",
-                    has_entity_name=True,
-                    name="water_usage",
-                    entity_registry_enabled_default=True,
-                    state_class=None,
-                    device_class=SensorDeviceClass.WATER,
-                    native_unit_of_measurement=UnitOfVolume.LITERS,
-                )
-            )
-        )
+        # entities.append(
+        #    LeakbotHistoricalSensor(
+        #        coordinator, device, LeakbotSensorEntityDescription(
+        #            key="water_usage",
+        #            translation_key="water_usage",
+        #            has_entity_name=True,
+        #            name="water_usage",
+        #           entity_registry_enabled_default=True,
+        #           state_class=None,
+        #            device_class=SensorDeviceClass.WATER,
+        #            native_unit_of_measurement=UnitOfVolume.LITERS,
+        #        )
+        #    )
+        # )
 
     async_add_devices(entities, True)
     coordinator.remove_old_entities(Platform.SENSOR)
@@ -166,35 +166,34 @@ class LeakbotHistoricalSensor(LeakbotEntity, PollUpdateMixin, HistoricalSensor, 
         # Get the current query time and step through history.
         query_date = dt.as_local(datetime.fromtimestamp(water_usage["ts"] / 1000))
         query_date = query_date.replace(hour=0, minute=0, second=0, microsecond=0)
-        LOGGER.debug("Query Date: %s", query_date)
 
         # Night - 00:00 to 06:00
         # Morning - 06:00 to 12:00
         # Afternoon - 12:00 to 18:00
         # Evening - 18:00 to 24:00
         water_states = []
-        for day in water_usage["days"]:
+        for day in reversed(water_usage["days"]):
             water_states.append(
                 HistoricalState(
-                    state=int(day["details"]["night"]),
+                    state=float(day["details"]["night"]),
                     dt=query_date.replace(hour=0) + timedelta(days=int(day["offset"]))
                 )
             )
             water_states.append(
                 HistoricalState(
-                    state=int(day["details"]["morning"]),
+                    state=float(day["details"]["morning"]),
                     dt=query_date.replace(hour=6) + timedelta(days=int(day["offset"]))
                 )
             )
             water_states.append(
                 HistoricalState(
-                    state=int(day["details"]["afternoon"]),
+                    state=float(day["details"]["afternoon"]),
                     dt=query_date.replace(hour=12) + timedelta(days=int(day["offset"]))
                 )
             )
             water_states.append(
                 HistoricalState(
-                    state=int(day["details"]["evening"]),
+                    state=float(day["details"]["evening"]),
                     dt=query_date.replace(hour=18) + timedelta(days=int(day["offset"]))
                 )
             )
@@ -209,7 +208,6 @@ class LeakbotHistoricalSensor(LeakbotEntity, PollUpdateMixin, HistoricalSensor, 
         """Return the statistic metadata for the sensor."""
         meta = super().get_statistic_metadata()
         meta["has_sum"] = True
-        meta["has_mean"] = False
 
         return meta
 
@@ -217,15 +215,19 @@ class LeakbotHistoricalSensor(LeakbotEntity, PollUpdateMixin, HistoricalSensor, 
         self, hist_states: list[HistoricalState], *, latest: dict | None = None
     ) -> list[StatisticData]:
         """Group and calculate statistical data."""
+        accumulated = float(latest["sum"]) if latest else float(0)
+        LOGGER.debug("Accumulated: %s", accumulated)
+
         ret = []
         for hist_state in hist_states:
+            accumulated += float(hist_state.state)
+            LOGGER.debug("Accumulated: %s", accumulated)
+
             ret.append(
                 StatisticData(
                     start=hist_state.dt,
-                    end=hist_state.dt + timedelta(hours=6),
-                    sum=hist_state.state,
-                    count=1,
-                    mean=None,
+                    state=hist_state.state,
+                    sum=accumulated
                 )
             )
 

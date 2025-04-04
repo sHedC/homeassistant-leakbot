@@ -56,5 +56,5 @@ class LeakbotEntity(CoordinatorEntity):
             model=self.get_device_data["device_type"],
             sw_version=self.get_device_data["fw_version"],
             hw_version=self._leakbot_id,
-            via_device=(DOMAIN, self.get_device_data["leakbotId"]),
+            via_device=(DOMAIN, str(self.get_device_data["leakbotId"])),
         )

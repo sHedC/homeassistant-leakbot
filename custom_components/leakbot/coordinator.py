@@ -3,10 +3,16 @@ from __future__ import annotations
 
 import logging
 
-from datetime import timedelta
+from datetime import date, datetime, timedelta
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.components.recorder.statistics import (
+    async_add_external_statistics,
+    get_last_statistics,
+    statistics_during_period,
+)
 from homeassistant.core import HomeAssistant
+from homeassistant.const import UnitOfVolume
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     UpdateFailed,
@@ -16,6 +22,9 @@ from homeassistant.helpers.entity_registry import (
     async_get,
     async_entries_for_config_entry,
 )
+from homeassistant.components.recorder.models import StatisticData, StatisticMetaData
+from homeassistant.util import slugify, dt
+
 
 from .api import (
     LeakbotApiClient,
@@ -135,8 +144,62 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                     device_id,
                     0
                 )
+                await self._insert_statistics(device)
 
                 _LOGGER.debug("Water Usage: %s", device["water_usage"])
+
             return result_data
         except LeakbotApiClientError as exception:
             raise UpdateFailed(exception) from exception
+
+    async def _insert_statistics(self, device: dict[str, any]) -> None:
+        """Insert Leakbot Statistics."""
+        id = f"{DOMAIN}.{device["leakbotId"]}_water_usage"
+
+        water_metadata = StatisticMetaData(
+            has_mean=False,
+            has_sum=True,
+            name="water_usage",
+            source=DOMAIN,
+            statistic_id=id,
+            unit_of_measurement=UnitOfVolume.LITERS,
+        )
+
+        # Get the current query time and step through history.
+        water_usage = device["water_usage"]
+        query_date = dt.as_local(datetime.fromtimestamp(water_usage["ts"] / 1000))
+        query_date = query_date.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        water_sum = 0
+        water_stats = []
+        for day in reversed(water_usage["days"]):
+            water_sum += float(day["details"]["night"])
+            water_stats.append(StatisticData(
+                start=query_date.replace(hour=0) + timedelta(days=int(day["offset"])),
+                state=float(day["details"]["night"]),
+                sum=water_sum
+            ))
+            water_sum += float(day["details"]["morning"])
+            water_stats.append(StatisticData(
+                start=query_date.replace(hour=6) + timedelta(days=int(day["offset"])),
+                state=float(day["details"]["morning"]),
+                sum=water_sum
+            ))
+            water_sum += float(day["details"]["afternoon"])
+            water_stats.append(StatisticData(
+                start=query_date.replace(hour=12) + timedelta(days=int(day["offset"])),
+                state=float(day["details"]["afternoon"]),
+                sum=water_sum
+            ))
+            water_sum += float(day["details"]["evening"])
+            water_stats.append(StatisticData(
+                start=query_date.replace(hour=18) + timedelta(days=int(day["offset"])),
+                state=float(day["details"]["evening"]),
+                sum=water_sum
+            ))
+
+            async_add_external_statistics(
+                self.hass,
+                water_metadata,
+                water_stats
+            )
