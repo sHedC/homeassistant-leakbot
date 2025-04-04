@@ -1,7 +1,7 @@
 pip>=21.3.1
 bumpver==2024.1130
 colorlog==6.9.0
-ruff==0.9.9
+ruff==0.11.2
 chardet==5.2.0
 homeassistant-historical-sensor==2.0.0
-pytest-homeassistant-custom-component==0.13.219
+pytest-homeassistant-custom-component==0.13.224

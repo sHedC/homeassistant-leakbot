@@ -22,7 +22,7 @@ from homeassistant.helpers.entity_registry import (
     async_get,
     async_entries_for_config_entry,
 )
-from homeassistant.components.recorder.models import StatisticData, StatisticMetaData
+from homeassistant.components.recorder.models import StatisticData, StatisticMetaData, StatisticMeanType
 from homeassistant.util import slugify, dt
 
 
@@ -154,14 +154,14 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
 
     async def _insert_statistics(self, device: dict[str, any]) -> None:
         """Insert Leakbot Statistics."""
-        id = f"{DOMAIN}.{device["leakbotId"]}_water_usage"
+        id = f"{DOMAIN}:water_usage"
 
         water_metadata = StatisticMetaData(
-            has_mean=False,
+            mean_type=StatisticMeanType.NONE,
             has_sum=True,
             name="water_usage",
             source=DOMAIN,
-            statistic_id=id,
+            statistic_id=f"{DOMAIN}:water_usage",
             unit_of_measurement=UnitOfVolume.LITERS,
         )
 
