@@ -1,6 +1,9 @@
 """Sensor platform for Leakbot."""
 
 from __future__ import annotations
+
+import asyncio
+
 from .entity import LeakbotEntity
 from .coordinator import LeakbotDataUpdateCoordinator
 from .const import DOMAIN
@@ -16,6 +19,17 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorDeviceClass,
     SensorStateClass,
+)
+from homeassistant.components.recorder.statistics import (
+    async_import_statistics,
+    get_instance,
+    get_last_statistics,
+    statistic_during_period
+)
+from homeassistant.components.recorder.models import (
+    StatisticData,
+    StatisticMetaData,
+    StatisticMeanType
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform, UnitOfTime, UnitOfVolume
@@ -85,7 +99,7 @@ async def async_setup_entry(
             entities.append(LeakbotSensor(coordinator, device, entity_description))
 
         entities.append(
-            LeakbotHistoricalSensor(
+            LeakbotWaterUsageSensor(
                 coordinator, device, LeakbotSensorEntityDescription(
                     key="water_usage",
                     translation_key="water_usage",
@@ -140,7 +154,7 @@ class LeakbotSensor(LeakbotEntity, SensorEntity):
 
 
 class LeakbotWaterUsageSensor(LeakbotEntity, SensorEntity):
-    """Leakbot Water Usage Sensor class."""
+    """Leakbot Water Usage Sensor class, used for historical data."""
 
     def __init__(
         self,
@@ -158,7 +172,88 @@ class LeakbotWaterUsageSensor(LeakbotEntity, SensorEntity):
     @property
     def state(self) -> StateType | date | datetime | Decimal:
         """Return the native value of the sensor."""
+        # Returns none as there is no current state for this sensor.
+        # This is a historical sensor.
         return None
+
+
+class LeakbotWaterHistorySensor(LeakbotEntity, SensorEntity):
+    """Leakbot Water Usage Sensor class, used for historical data."""
+
+    def __init__(
+        self,
+        coordinator: LeakbotDataUpdateCoordinator,
+        device: dict[str, any],
+        entity_description: LeakbotSensorEntityDescription,
+    ) -> None:
+        """Initialize the water usage sensor class."""
+        super().__init__(
+            Platform.SENSOR, coordinator, device["id"], entity_description.key
+        )
+        self.entity_description: LeakbotSensorEntityDescription = entity_description
+        self._attr_state = None
+
+    @property
+    def state(self) -> StateType | date | datetime | Decimal:
+        """Return the native value of the sensor."""
+        # Returns none as there is no current state for this sensor.
+        # This is a historical sensor.
+        return None
+
+    async def async_added_to_hass(self) -> None:
+        """Handle the addition of the sensor to Home Assistant."""
+        # Perform initial statistic import when sensor is added.
+        await self.update_statistics()
+        return super().async_added_to_hass()
+
+    def _handle_coordinator_update(self) -> None:
+        """Handle the update from the coordinator."""
+        asyncio.run_coroutine_threadsafe(self.update_statistics(), self.hass.loop)
+
+    async def update_statistics(self) -> None:
+        """Update the statistics for the water usage sensor."""
+        # Update the statistics for the water usage sensor.
+        # This is a historical sensor and does not have a current state.
+        statistic_id = self.entity_id
+        statistics_sum = 0
+        statistics_since = None
+
+        last_stats = await get_instance(self.hass).async_add_executor_job(
+            get_last_statistics,
+            self.hass,
+            1,
+            statistic_id,
+            False,
+            {"sum"},
+        )
+        LOGGER.debug("Last Statistics: %s", last_stats)
+
+        if last_stats:
+            statistics_sum = last_stats[statistic_id][0].get("sum") or 0
+            statistics_since = datetime.fromtimestamp(
+                last_stats[statistic_id][0].get("end") or 0
+            )
+
+        # Last Start: 2025-04-05 18:00:00 :: End 2025-04-05 18:00:00
+        water_usage = self.get_device_data["water_usage"]
+        query_date = dt.as_local(datetime.fromtimestamp(water_usage["ts"] / 1000))
+        query_date = query_date.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        for day in reversed(water_usage["days"]):
+            start_date = query_date + timedelta(days=int(day["offset"]))
+            if start_date > dt.as_local(statistics_since):
+                LOGGER.debug("Processing Date: %s", start_date)
+
+        # water_stats_metadata = StatisticMetaData(
+        #    mean_type=StatisticMeanType.NONE,
+        #    has_sum=True,
+        #    name="water_usage",
+        #    source="recorder",
+        #    statistic_id=self.entity_id,
+        #    unit_of_measurement=UnitOfVolume.LITERS,
+        # )
+
+        pass
 
 
 class LeakbotHistoricalSensor(LeakbotEntity, PollUpdateMixin, HistoricalSensor, SensorEntity):

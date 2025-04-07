@@ -9,6 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.components.recorder.statistics import (
     async_add_external_statistics,
     get_last_statistics,
+    get_instance,
     statistics_during_period,
     async_import_statistics
 )
@@ -155,14 +156,32 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
 
     async def _insert_statistics(self, device: dict[str, any]) -> None:
         """Insert Leakbot Statistics."""
-        id = f"{DOMAIN}:water_usage"
+        id = "sensor.leakbot_6wljsgk_water_usage"
+
+        statistics_sum = 0
+        statistics_since = None
+
+        last_stats = await get_instance(self.hass).async_add_executor_job(
+            get_last_statistics,
+            self.hass,
+            1,
+            id,
+            False,
+            {"sum"},
+        )
+
+        if last_stats:
+            statistics_sum = last_stats[id][0].get("sum") or 0
+            statistics_since = datetime.fromtimestamp(
+                last_stats[id][0].get("end") or 0
+            )
 
         water_metadata = StatisticMetaData(
             mean_type=StatisticMeanType.NONE,
             has_sum=True,
             name="water_usage",
             source="recorder",
-            statistic_id=f"sensor.{DOMAIN}_water_usage",
+            statistic_id=id,
             unit_of_measurement=UnitOfVolume.LITERS,
         )
 
@@ -174,6 +193,11 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
         water_sum = 0
         water_stats = []
         for day in reversed(water_usage["days"]):
+            start_date = query_date + timedelta(days=int(day["offset"]))
+            if start_date > dt.as_local(statistics_since):
+                LOGGER.debug("Processing Date: %s", start_date)
+            else:
+                LOGGER.debug("Skipping Date: %s", start_date)
             water_sum += float(day["details"]["night"])
             water_stats.append(StatisticData(
                 start=query_date.replace(hour=0) + timedelta(days=int(day["offset"])),
