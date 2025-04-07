@@ -7,29 +7,26 @@ import asyncio
 from .entity import LeakbotEntity
 from .coordinator import LeakbotDataUpdateCoordinator
 from .const import DOMAIN
-from homeassistant_historical_sensor import HistoricalSensor, HistoricalState, PollUpdateMixin
 
 from decimal import Decimal
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 
-from homeassistant.components.recorder.models import StatisticData, StatisticMetaData
+from homeassistant.components.recorder.models import (
+    StatisticData,
+    StatisticMetaData,
+    StatisticMeanType
+)
+from homeassistant.components.recorder.statistics import (
+    async_import_statistics,
+    get_instance,
+    get_last_statistics
+)
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorEntityDescription,
     SensorDeviceClass,
     SensorStateClass,
-)
-from homeassistant.components.recorder.statistics import (
-    async_import_statistics,
-    get_instance,
-    get_last_statistics,
-    statistic_during_period
-)
-from homeassistant.components.recorder.models import (
-    StatisticData,
-    StatisticMetaData,
-    StatisticMeanType
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform, UnitOfTime, UnitOfVolume
@@ -99,7 +96,7 @@ async def async_setup_entry(
             entities.append(LeakbotSensor(coordinator, device, entity_description))
 
         entities.append(
-            LeakbotWaterUsageSensor(
+            LeakbotWaterHistorySensor(
                 coordinator, device, LeakbotSensorEntityDescription(
                     key="water_usage",
                     translation_key="water_usage",
@@ -153,30 +150,6 @@ class LeakbotSensor(LeakbotEntity, SensorEntity):
                 return slugify(return_value)
 
 
-class LeakbotWaterUsageSensor(LeakbotEntity, SensorEntity):
-    """Leakbot Water Usage Sensor class, used for historical data."""
-
-    def __init__(
-        self,
-        coordinator: LeakbotDataUpdateCoordinator,
-        device: dict[str, any],
-        entity_description: LeakbotSensorEntityDescription,
-    ) -> None:
-        """Initialize the water usage sensor class."""
-        super().__init__(
-            Platform.SENSOR, coordinator, device["id"], entity_description.key
-        )
-        self.entity_description: LeakbotSensorEntityDescription = entity_description
-        self._attr_state = None
-
-    @property
-    def state(self) -> StateType | date | datetime | Decimal:
-        """Return the native value of the sensor."""
-        # Returns none as there is no current state for this sensor.
-        # This is a historical sensor.
-        return None
-
-
 class LeakbotWaterHistorySensor(LeakbotEntity, SensorEntity):
     """Leakbot Water Usage Sensor class, used for historical data."""
 
@@ -204,7 +177,7 @@ class LeakbotWaterHistorySensor(LeakbotEntity, SensorEntity):
         """Handle the addition of the sensor to Home Assistant."""
         # Perform initial statistic import when sensor is added.
         await self.update_statistics()
-        return super().async_added_to_hass()
+        return await super().async_added_to_hass()
 
     def _handle_coordinator_update(self) -> None:
         """Handle the update from the coordinator."""
@@ -216,7 +189,7 @@ class LeakbotWaterHistorySensor(LeakbotEntity, SensorEntity):
         # This is a historical sensor and does not have a current state.
         statistic_id = self.entity_id
         statistics_sum = 0
-        statistics_since = None
+        statistics_since = datetime.fromtimestamp(0)
 
         last_stats = await get_instance(self.hass).async_add_executor_job(
             get_last_statistics,
@@ -239,113 +212,50 @@ class LeakbotWaterHistorySensor(LeakbotEntity, SensorEntity):
         query_date = dt.as_local(datetime.fromtimestamp(water_usage["ts"] / 1000))
         query_date = query_date.replace(hour=0, minute=0, second=0, microsecond=0)
 
+        update_happened = False
+        new_stats = []
         for day in reversed(water_usage["days"]):
             start_date = query_date + timedelta(days=int(day["offset"]))
             if start_date > dt.as_local(statistics_since):
-                LOGGER.debug("Processing Date: %s", start_date)
+                update_happened = True
 
-        # water_stats_metadata = StatisticMetaData(
-        #    mean_type=StatisticMeanType.NONE,
-        #    has_sum=True,
-        #    name="water_usage",
-        #    source="recorder",
-        #    statistic_id=self.entity_id,
-        #    unit_of_measurement=UnitOfVolume.LITERS,
-        # )
+                statistics_sum += float(day["details"]["night"]) / 2
+                new_stats.append(StatisticData(
+                    start=query_date.replace(hour=0) + timedelta(days=int(day["offset"])),
+                    state=float(day["details"]["night"]) / 2,
+                    sum=statistics_sum
+                ))
+                statistics_sum += float(day["details"]["morning"]) / 2
+                new_stats.append(StatisticData(
+                    start=query_date.replace(hour=6) + timedelta(days=int(day["offset"])),
+                    state=float(day["details"]["morning"]) / 2,
+                    sum=statistics_sum
+                ))
+                statistics_sum += float(day["details"]["afternoon"]) / 2
+                new_stats.append(StatisticData(
+                    start=query_date.replace(hour=12) + timedelta(days=int(day["offset"])),
+                    state=float(day["details"]["afternoon"]) / 2,
+                    sum=statistics_sum
+                ))
+                statistics_sum += float(day["details"]["evening"]) / 2
+                new_stats.append(StatisticData(
+                    start=query_date.replace(hour=18) + timedelta(days=int(day["offset"])),
+                    state=float(day["details"]["evening"]) / 2,
+                    sum=statistics_sum
+                ))
 
-        pass
-
-
-class LeakbotHistoricalSensor(LeakbotEntity, PollUpdateMixin, HistoricalSensor, SensorEntity):
-    """Leakbot Historical Sensor class."""
-
-    def __init__(
-        self,
-        coordinator: LeakbotDataUpdateCoordinator,
-        device: dict[str, any],
-        entity_description: LeakbotSensorEntityDescription,
-    ) -> None:
-        """Initialize the historical sensor class."""
-        super().__init__(
-            Platform.SENSOR, coordinator, device["id"], entity_description.key
-        )
-        self.entity_description: LeakbotSensorEntityDescription = entity_description
-        self._attr_state = None
-
-    async def async_added_to_hass(self) -> None:
-        """Handle the addition of the sensor to Home Assistant."""
-        await super().async_added_to_hass()
-
-    async def async_update_historical(self):
-        """Update the historical data for the sensor."""
-        water_usage = self.get_device_data["water_usage"]
-
-        # Get the current query time and step through history.
-        query_date = dt.as_local(datetime.fromtimestamp(water_usage["ts"] / 1000))
-        query_date = query_date.replace(hour=0, minute=0, second=0, microsecond=0)
-
-        # Night - 00:00 to 06:00
-        # Morning - 06:00 to 12:00
-        # Afternoon - 12:00 to 18:00
-        # Evening - 18:00 to 24:00
-        water_states = []
-        for day in reversed(water_usage["days"]):
-            water_states.append(
-                HistoricalState(
-                    state=float(day["details"]["night"]),
-                    dt=query_date.replace(hour=0) + timedelta(days=int(day["offset"]))
-                )
+        if update_happened:
+            # Import the statistics into the database.
+            new_stats_meta = StatisticMetaData(
+                mean_type=StatisticMeanType.NONE,
+                has_sum=True,
+                name=self.name,
+                source="recorder",
+                statistic_id=statistic_id,
+                unit_of_measurement=self.unit_of_measurement
             )
-            water_states.append(
-                HistoricalState(
-                    state=float(day["details"]["morning"]),
-                    dt=query_date.replace(hour=6) + timedelta(days=int(day["offset"]))
-                )
+            async_import_statistics(
+                self.hass,
+                new_stats_meta,
+                new_stats
             )
-            water_states.append(
-                HistoricalState(
-                    state=float(day["details"]["afternoon"]),
-                    dt=query_date.replace(hour=12) + timedelta(days=int(day["offset"]))
-                )
-            )
-            water_states.append(
-                HistoricalState(
-                    state=float(day["details"]["evening"]),
-                    dt=query_date.replace(hour=18) + timedelta(days=int(day["offset"]))
-                )
-            )
-        self._attr_historical_states = water_states
-
-    @property
-    def statistic_id(self) -> str:
-        """Return the statistic ID for the sensor."""
-        return self.entity_id
-
-    def get_statistic_metadata(self) -> StatisticMetaData:
-        """Return the statistic metadata for the sensor."""
-        meta = super().get_statistic_metadata()
-        meta["has_sum"] = True
-
-        return meta
-
-    async def async_calculate_statistic_data(
-        self, hist_states: list[HistoricalState], *, latest: dict | None = None
-    ) -> list[StatisticData]:
-        """Group and calculate statistical data."""
-        accumulated = float(latest["sum"]) if latest else float(0)
-        LOGGER.debug("Accumulated: %s", accumulated)
-
-        ret = []
-        for hist_state in hist_states:
-            accumulated += float(hist_state.state)
-            LOGGER.debug("Accumulated: %s", accumulated)
-
-            ret.append(
-                StatisticData(
-                    start=hist_state.dt,
-                    state=hist_state.state,
-                    sum=accumulated
-                )
-            )
-
-        return ret

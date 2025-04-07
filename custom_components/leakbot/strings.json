@@ -31,6 +31,9 @@
             },
             "leak_free_days": {
                 "name": "Leak Free Days"
+            },
+            "water_usage": {
+                "name": "Water Usage"
             }
         }
     }
