@@ -10,6 +10,7 @@ from homeassistant.components.recorder.statistics import (
     async_add_external_statistics,
     get_last_statistics,
     statistics_during_period,
+    async_import_statistics
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.const import UnitOfVolume
@@ -160,8 +161,8 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             mean_type=StatisticMeanType.NONE,
             has_sum=True,
             name="water_usage",
-            source=DOMAIN,
-            statistic_id=f"{DOMAIN}:water_usage",
+            source="recorder",
+            statistic_id=f"sensor.{DOMAIN}_water_usage",
             unit_of_measurement=UnitOfVolume.LITERS,
         )
 
@@ -198,7 +199,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                 sum=water_sum
             ))
 
-            async_add_external_statistics(
+            async_import_statistics(
                 self.hass,
                 water_metadata,
                 water_stats

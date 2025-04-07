@@ -84,20 +84,20 @@ async def async_setup_entry(
         for entity_description in ENTITY_DESCRIPTIONS:
             entities.append(LeakbotSensor(coordinator, device, entity_description))
 
-        # entities.append(
-        #    LeakbotHistoricalSensor(
-        #        coordinator, device, LeakbotSensorEntityDescription(
-        #            key="water_usage",
-        #            translation_key="water_usage",
-        #            has_entity_name=True,
-        #            name="water_usage",
-        #           entity_registry_enabled_default=True,
-        #           state_class=None,
-        #            device_class=SensorDeviceClass.WATER,
-        #            native_unit_of_measurement=UnitOfVolume.LITERS,
-        #        )
-        #    )
-        # )
+        entities.append(
+            LeakbotHistoricalSensor(
+                coordinator, device, LeakbotSensorEntityDescription(
+                    key="water_usage",
+                    translation_key="water_usage",
+                    has_entity_name=True,
+                    name="water_usage",
+                    entity_registry_enabled_default=True,
+                    state_class=None,
+                    device_class=SensorDeviceClass.WATER,
+                    native_unit_of_measurement=UnitOfVolume.LITERS,
+                )
+            )
+        )
 
     async_add_devices(entities, True)
     coordinator.remove_old_entities(Platform.SENSOR)
@@ -137,6 +137,28 @@ class LeakbotSensor(LeakbotEntity, SensorEntity):
                 return datetime.fromisoformat(f"{return_value}+00:00")
             case _:
                 return slugify(return_value)
+
+
+class LeakbotWaterUsageSensor(LeakbotEntity, SensorEntity):
+    """Leakbot Water Usage Sensor class."""
+
+    def __init__(
+        self,
+        coordinator: LeakbotDataUpdateCoordinator,
+        device: dict[str, any],
+        entity_description: LeakbotSensorEntityDescription,
+    ) -> None:
+        """Initialize the water usage sensor class."""
+        super().__init__(
+            Platform.SENSOR, coordinator, device["id"], entity_description.key
+        )
+        self.entity_description: LeakbotSensorEntityDescription = entity_description
+        self._attr_state = None
+
+    @property
+    def state(self) -> StateType | date | datetime | Decimal:
+        """Return the native value of the sensor."""
+        return None
 
 
 class LeakbotHistoricalSensor(LeakbotEntity, PollUpdateMixin, HistoricalSensor, SensorEntity):
