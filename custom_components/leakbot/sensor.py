@@ -29,13 +29,11 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform, UnitOfTime, UnitOfVolume
+from homeassistant.const import Platform, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.util import slugify, dt
-
-from .const import LOGGER
 
 
 @dataclass
@@ -80,7 +78,7 @@ ENTITY_DESCRIPTIONS = (
         has_entity_name=True,
         data_type="timestamp",
         device_class=SensorDeviceClass.TIMESTAMP,
-    ),
+    )
 )
 
 
@@ -99,13 +97,13 @@ async def async_setup_entry(
             LeakbotWaterHistorySensor(
                 coordinator, device, LeakbotSensorEntityDescription(
                     key="water_usage",
-                    translation_key="water_usage",
+                    translation_key="water_usage_events",
                     has_entity_name=True,
-                    name="water_usage",
+                    name="water_usage_events",
                     entity_registry_enabled_default=True,
                     state_class=None,
                     device_class=SensorDeviceClass.WATER,
-                    native_unit_of_measurement=UnitOfVolume.LITERS,
+                    native_unit_of_measurement=None
                 )
             )
         )
@@ -199,7 +197,6 @@ class LeakbotWaterHistorySensor(LeakbotEntity, SensorEntity):
             False,
             {"sum"},
         )
-        LOGGER.debug("Last Statistics: %s", last_stats)
 
         if last_stats:
             statistics_sum = last_stats[statistic_id][0].get("sum") or 0
@@ -208,7 +205,7 @@ class LeakbotWaterHistorySensor(LeakbotEntity, SensorEntity):
             )
 
         # Last Start: 2025-04-05 18:00:00 :: End 2025-04-05 18:00:00
-        water_usage = self.get_device_data["water_usage"]
+        water_usage = self.get_device_data[self.entity_description.key]
         query_date = dt.as_local(datetime.fromtimestamp(water_usage["ts"] / 1000))
         query_date = query_date.replace(hour=0, minute=0, second=0, microsecond=0)
 

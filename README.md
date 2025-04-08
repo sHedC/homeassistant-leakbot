@@ -27,11 +27,17 @@ Latest -
 
 An integration for homeassistant (via HACS) to connect to Leakbot via the leakbot cloud api.
 
+The Water Usage Events sensor does not have a current value, this sensor imports the history which is always 2 days out of date. For each 30 min duration if Leakbot detects water usage the value is incremented by 1, there are a total of 48 detectable units in a day which are recorded as night/ morning/ afternoon and evening.
+
+![][waterusageimg]
+
+Water Usage Events is used only for showing in the history.
+
 NOTES:
 - For a new install of the Leakbot device it can take 24 hours before the API will start returning data, before that you will see invalid values.
 - The integration updates every four hours at this time, it is not currently changable, it only updates once a day as normal, not sure if a leak forces update.
 - There are three sensors: battery status, leak status and leak free days. There is also a device tracker but might remove that as seems pointless.
-- For some reason leak free days is showing in the UI hours, not sure why as its setup in days.
+- Water Usage Events status does not show in the energy dashboard as this requires a volume unit of measure which we do not have.
 - Some translation is done as don't know what other options there are, example goodbattery not seen other states to setup.
 - Diagnotic download is not yet available.
 
@@ -127,6 +133,7 @@ Or just raise a feature request, would be useful to have a use-case, what system
 
 ***
 
+[waterusageimg]: https://github.com/home-assistant/brands/blob/master/custom_integrations/leakbot/logo.png
 [leakbotimg]: https://github.com/home-assistant/brands/blob/master/custom_integrations/leakbot/logo.png
 [leakbot]: https://github.com/sHedC/homeassistant-leakbot
 [commits-shield]: https://img.shields.io/github/commit-activity/y/sHedC/homeassistant-leakbot?style=for-the-badge

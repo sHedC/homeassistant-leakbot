@@ -35,8 +35,8 @@
             "last_update": {
                 "name": "Last Update"
             },
-            "water_usage": {
-                "name": "Water Usage"
+            "water_usage_events": {
+                "name": "Water Usage Events"
             }
         }
     }
