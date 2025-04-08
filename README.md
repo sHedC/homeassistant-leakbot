@@ -133,7 +133,7 @@ Or just raise a feature request, would be useful to have a use-case, what system
 
 ***
 
-[waterusageimg]: https://github.com/home-assistant/brands/blob/master/custom_integrations/leakbot/logo.png
+[waterusageimg]: https://github.com/sHedC/homeassistant-leakbot/blob/sHedC/issue82/history.png
 [leakbotimg]: https://github.com/home-assistant/brands/blob/master/custom_integrations/leakbot/logo.png
 [leakbot]: https://github.com/sHedC/homeassistant-leakbot
 [commits-shield]: https://img.shields.io/github/commit-activity/y/sHedC/homeassistant-leakbot?style=for-the-badge
