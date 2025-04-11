@@ -1,12 +1,12 @@
 {
   "domain": "leakbot",
   "name": "Leakbot",
+  "after_dependencies": ["recorder"],
   "codeowners": [
     "@sHedC"
   ],
   "config_flow": true,
   "documentation": "https://github.com/sHedC/leakbot",
-  "after_dependencies": ["recorder"],
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/sHedC/leakbot/issues",
   "version": "1.0.0b0"
