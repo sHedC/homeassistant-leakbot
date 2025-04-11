@@ -1,6 +1,7 @@
 {
   "domain": "leakbot",
   "name": "Leakbot",
+  "after_dependencies": ["recorder"],
   "codeowners": [
     "@sHedC"
   ],

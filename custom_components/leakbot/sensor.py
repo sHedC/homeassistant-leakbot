@@ -35,6 +35,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.util import slugify, dt
 
+from .const import LOGGER
+
 
 @dataclass
 class LeakbotSensorEntityDescription(SensorEntityDescription):
@@ -93,20 +95,25 @@ async def async_setup_entry(
         for entity_description in ENTITY_DESCRIPTIONS:
             entities.append(LeakbotSensor(coordinator, device, entity_description))
 
-        entities.append(
-            LeakbotWaterHistorySensor(
-                coordinator, device, LeakbotSensorEntityDescription(
-                    key="water_usage",
-                    translation_key="water_usage_events",
-                    has_entity_name=True,
-                    name="water_usage_events",
-                    entity_registry_enabled_default=True,
-                    state_class=None,
-                    device_class=SensorDeviceClass.WATER,
-                    native_unit_of_measurement=None
+        try:
+            get_instance(hass)
+        except KeyError:  # No recorder loaded
+            LOGGER.warning("Recorder not loaded, disabling history sensor.")
+        else:
+            entities.append(
+                LeakbotWaterHistorySensor(
+                    coordinator, device, LeakbotSensorEntityDescription(
+                        key="water_usage",
+                        translation_key="water_usage_events",
+                        has_entity_name=True,
+                        name="water_usage_events",
+                        entity_registry_enabled_default=True,
+                        state_class=None,
+                        device_class=SensorDeviceClass.WATER,
+                        native_unit_of_measurement=None
+                    )
                 )
             )
-        )
 
     async_add_devices(entities, True)
     coordinator.remove_old_entities(Platform.SENSOR)

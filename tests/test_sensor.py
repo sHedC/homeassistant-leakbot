@@ -5,7 +5,6 @@ import pytest
 
 from aiohttp.web import Application
 
-from homeassistant.components.recorder.statistics import get_instance, get_last_statistics
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
