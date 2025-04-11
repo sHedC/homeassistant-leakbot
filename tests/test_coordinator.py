@@ -47,7 +47,7 @@ async def test_coordinator_data(
     assert "123456" in coordinator.data["devices"]
 
     device = coordinator.data["devices"]["123456"]
-    assert device["last_update"]["messageTimestamp"] == "2024-04-10 00:18:15"
+    assert device["last_update"]["messageTimestamp"] == "2025-04-11 02:16:26"
 
 
 async def test_auth_error(

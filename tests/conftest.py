@@ -20,6 +20,7 @@ from custom_components.leakbot.api import (
     API_TENANT_MYVIEW,
     API_DEVICE_MYMSG,
     API_DEVICE_WATERUSAGE,
+    API_DEVICE_MYSIMPLEMSG
 )
 
 VALID_LOGIN = {
@@ -94,6 +95,7 @@ async def leakbot_api(hass: HomeAssistant) -> Application:
     app.router.add_route("POST", API_DEVICE_MYVIEW, api.device_myview)
     app.router.add_route("POST", API_DEVICE_MYMSG, api.device_messages)
     app.router.add_route("POST", API_DEVICE_WATERUSAGE, api.device_waterusage)
+    app.router.add_route("POST", API_DEVICE_MYSIMPLEMSG, api.device_simpleeventlist)
 
     async_setup_forwarded(app, True, [])
     return app
@@ -233,6 +235,24 @@ class LeakbotAPIMock:
             device_id = data["LbDevice_ID"]
             offset = data["timeZoneOffset"]
             response_text = load_fixture(f"device_waterusage_{device_id}_{offset}.json")
+        else:
+            response_text = load_fixture("account_invalid_token.json")
+
+        return Response(
+            text=response_text,
+            content_type="application/json",
+        )
+
+    async def device_simpleeventlist(self, request: Request) -> Response:
+        """Mock API to get Device Simple Event List."""
+        data = await request.json()
+        token = data["token"]
+        lctoken = request.cookies.get("lctoken")
+        starting_date = data["starting_date"]
+
+        if self._token == token and self._token == lctoken and starting_date is not None:
+            device_id = data["LbDevice_ID"]
+            response_text = load_fixture(f"device_mysimpleeventlist_{device_id}.json")
         else:
             response_text = load_fixture("account_invalid_token.json")
 

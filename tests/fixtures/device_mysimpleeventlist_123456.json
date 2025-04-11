@@ -1,0 +1,15 @@
+{
+    "events": [
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2025-04-11 05:21:29",
+            "derived_event_code": "HighFlow",
+            "derived_event_created": "2025-04-11 02:18:05",
+            "derived_event_id": "4142204",
+            "interaction_flag": "null"
+        }
+    ],
+    "ts": 1744353277242,
+    "ms": 169
+}
