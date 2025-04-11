@@ -1,5 +1,12 @@
 # https://www.home-assistant.io/integrations/default_config/
-default_config:
+# default_config:
+
+# Add needed setup for the integraiton,
+config:
+logbook:
+
+# comment out history to test if missing, water events disabled.
+history:
 
 # Enable to initiate debugging in Home Assistant Runtime
 debugpy:
