@@ -42,10 +42,10 @@ async def async_setup_entry(
                 coordinator,
                 device,
                 CalendarEntityDescription(
-                    key="leakbot_events",
-                    translation_key="leakbot_events",
+                    key="leakbot_event",
+                    translation_key="leakbot_event",
                     has_entity_name=True,
-                    name="Leakbot Event",
+                    name="leakbot_event",
                     icon="mdi:calendar",
                     entity_registry_enabled_default=True,
                     entity_registry_visible_default=True,
@@ -66,9 +66,9 @@ class LeakbotEventsCalendar(LeakbotEntity, CalendarEntity):
         device: dict[str, any],
         entity_description: CalendarEntityDescription,
     ) -> None:
-        """Initialize the sensor."""
+        """Initialize the calendar."""
         super().__init__(
-            Platform.SENSOR, coordinator, device["id"], entity_description.key
+            Platform.CALENDAR, coordinator, device["id"], entity_description.key
         )
         self.entity_description: CalendarEntityDescription = entity_description
 

@@ -16,6 +16,11 @@
         }
     },
     "entity": {
+        "calendar": {
+            "leakbot_event": {
+                "name": "Leakbot Event"
+            }
+        },
         "sensor": {
             "battery_sm": {
                 "name": "Battery State",
