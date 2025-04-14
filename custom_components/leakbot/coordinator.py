@@ -101,48 +101,43 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
         except LeakbotApiClientError as exception:
             raise UpdateFailed(exception) from exception
 
-    async def __get_events_list(
-        self,
-        device_id: str,
-        start: datetime,
-        end: datetime,
-        refresh: bool = False,
-    ) -> list[dict[str, any]]:
-        """Get Events List, update if needed."""
-        device = self.data["devices"].get(device_id)
+    async def _async_update_events(
+        self, device_id: str, device: dict[str, any]
+    ) -> None:
+        """Initialize Leakbot Events."""
+        end_date = datetime.now()
 
-        # Check if we need to retrieve messages.
-        update = refresh
-        if device.get("event_start_date") is None:
+        if device.get("events") is None:
             device["events"] = []
-            update = True
-        elif start < device.get("event_start_date"):
-            update = True
+            start_date = end_date - timedelta(days=90)
+            finish = False
+            while not finish:
+                starting_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
+                events = await self.client.get_device_simple_event_list(
+                    device_id, starting_date
+                )
+                start_date = start_date - timedelta(days=90)
 
-        if update:
-            # Update/ Refresh the Events, only 90 days at a time
-            # update back to ths start date.
-            if refresh:
-                end_date = end
-                start_date = start
-            else:
-                end_date = device.get("event_end_date")
-                start_date = device.get("event_start_date")
+                for event in events["events"]:
+                    if event not in device["events"]:
+                        device["events"].append(event)
 
+                    if event.get("derived_event_code") == "Registered":
+                        finish = True
+
+            device["event_start_date"] = start_date
+        else:
+            end_date = datetime.now()
+            start_date = device["event_end_date"] - timedelta(days=10)
             starting_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
             events = await self.client.get_device_simple_event_list(
                 device_id, starting_date
             )
-
             for event in events["events"]:
                 if event not in device["events"]:
                     device["events"].append(event)
 
-            device["event_end_date"] = end_date
-            if not device.get("event_start_date"):
-                device["event_start_date"] = start_date
-
-        return []
+        device["event_end_date"] = end_date
 
     async def _async_update_data(self):
         """Update data via library."""
@@ -207,32 +202,15 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                             message["event_type"],
                         )
 
-                # Refresh Event Simple Messages for last 90 days.
-                end_date = datetime.now()
-                start_date = end_date - timedelta(days=90)
-                starting_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
-                events = await self.client.get_device_simple_event_list(
-                    device_id, starting_date
+                # Update Events
+                await self._async_update_events(device_id, device)
+
+                LOGGER.warning(
+                    "Start: %s, End: %s, Events: %s",
+                    device["event_start_date"],
+                    device["event_end_date"],
+                    device["events"],
                 )
-
-                # Merge Events and Set start and end dates if needed.
-                if not device.get("events"):
-                    device["events"] = []
-
-                for event in events["events"]:
-                    if event not in device["events"]:
-                        device["events"].append(event)
-
-                device["event_end_date"] = end_date
-                if not device.get("event_start_date"):
-                    device["event_start_date"] = start_date
-
-            LOGGER.warning(
-                "Start: %s, End: %s, Events: %s",
-                device["event_start_date"],
-                device["event_end_date"],
-                device["events"],
-            )
 
             return result_data
         except LeakbotApiClientError as exception:
@@ -242,13 +220,10 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
         self, device_id: str, start_date: datetime, end_date: datetime
     ) -> list[CalendarEvent]:
         """Get Calendar Events within a date range."""
-        events = await self.client.get_device_simple_event_list(
-            device_id, start_date.strftime("%Y-%m-%d %H:%M:%S")
-        )
-
+        events = self.data["devices"][device_id].get("events", [])
         calendar_events = []
 
-        for event in events["events"]:
+        for event in events:
             event_start = datetime.fromisoformat(event["derived_event_created"])
             event_closed = event["derived_event_closed"]
 
