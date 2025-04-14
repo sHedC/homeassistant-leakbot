@@ -1,11 +1,20 @@
 """DataUpdateCoordinator for Leakbot."""
+
 from __future__ import annotations
 
 import logging
 
-from datetime import timedelta
+from dataclasses import dataclass
+from datetime import timedelta, datetime
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.components.calendar import (
+    CalendarEntity,
+    CalendarEntityDescription,
+    CalendarEntityFeature,
+    CalendarEvent,
+    CalendarListView,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
@@ -16,6 +25,7 @@ from homeassistant.helpers.entity_registry import (
     async_get,
     async_entries_for_config_entry,
 )
+from homeassistant.util import slugify, dt
 
 from .api import (
     LeakbotApiClient,
@@ -132,12 +142,71 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
 
                 # Water Usage
                 device["water_usage"] = await self.client.get_device_water_usage(
-                    device_id,
-                    0
+                    device_id, 0
                 )
 
-                _LOGGER.debug("Water Usage: %s", device["water_usage"])
+                # Check for Alerts, Informational for now!!!
+                messages = await self.client.get_device_messages(device_id)
+                for message in messages["list"]["record"]:
+                    if message["msg_type"] == "10" and message["event_type"] != "null":
+                        LOGGER.warning(
+                            "Unrecognized Alert, please report! Date: %s, Msg Type: %s, Event Type: %s",
+                            message["messageTimestamp"],
+                            message["msg_type"],
+                            message["event_type"],
+                        )
+
+                    if message["msg_type"] == "9" and int(message["event_type"]) > 2:
+                        LOGGER.warning(
+                            "Unrecognized Alert, please report! Date: %s, Msg Type: %s, Event Type: %s",
+                            message["messageTimestamp"],
+                            message["msg_type"],
+                            message["event_type"],
+                        )
+
+                # Look for Event Messages to add to calendar.
+                # Can do events from past 90 days,
+                # but better if from last successful refresh.
+                start_date = datetime.now() - timedelta(days=90)
+                starting_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
+                events = await self.client.get_device_simple_event_list(
+                    device_id, starting_date
+                )
+                device["events"] = events["events"]
+
+                # Temporary Logger.
+                LOGGER.warning("Events: %s", device["events"])
 
             return result_data
         except LeakbotApiClientError as exception:
             raise UpdateFailed(exception) from exception
+
+    async def async_get_events(
+        self, device_id: str, start_date: datetime, end_date: datetime
+    ) -> list[CalendarEvent]:
+        """Get Calendar Events within a date range."""
+        events = await self.client.get_device_simple_event_list(
+            device_id, start_date.strftime("%Y-%m-%d %H:%M:%S")
+        )
+
+        calendar_events = []
+
+        for event in events["events"]:
+            event_start = datetime.fromisoformat(event["derived_event_created"])
+            event_closed = event["derived_event_closed"]
+
+            if event["derived_event_closed"] == "null":
+                event_end = event_start + timedelta(minutes=30)
+            else:
+                event_end = datetime.fromisoformat(event_closed)
+
+            if event_start <= event_end:
+                calendar_events.append(
+                    CalendarEvent(
+                        start=dt.as_local(event_start),
+                        end=dt.as_local(event_end),
+                        summary=event["derived_event_code"],
+                    )
+                )
+
+        return calendar_events

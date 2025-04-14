@@ -15,7 +15,11 @@ from .api import LeakbotApiClient
 from .const import DOMAIN
 from .coordinator import LeakbotDataUpdateCoordinator
 
-PLATFORMS: list[Platform] = [Platform.DEVICE_TRACKER, Platform.SENSOR]
+PLATFORMS: list[Platform] = [
+    Platform.DEVICE_TRACKER,
+    Platform.SENSOR,
+    Platform.CALENDAR,
+]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

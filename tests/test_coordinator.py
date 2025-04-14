@@ -48,6 +48,8 @@ async def test_coordinator_data(
 
     device = coordinator.data["devices"]["123456"]
     assert device["last_update"]["messageTimestamp"] == "2025-04-11 02:16:26"
+    assert device["water_usage"]["days"][0]["dayNumber"] == "6"
+    assert device["events"]["ts"] == 1744353277242
 
 
 async def test_auth_error(

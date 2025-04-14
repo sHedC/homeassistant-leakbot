@@ -12,11 +12,11 @@
         8123
     ],
     "portsAttributes": {
-		"8123": {
-			"label": "localhost",
-			"protocol": "http"
-		}
-	},
+        "8123": {
+            "label": "localhost",
+            "protocol": "http"
+        }
+    },
     "containerEnv": {
         "BUILD_TYPE": "run"
     },
@@ -48,6 +48,9 @@
                 "editor.formatOnPaste": false,
                 "editor.formatOnSave": true,
                 "editor.formatOnType": true,
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff"
+                },
                 "extensions.ignoreRecommendations": true,
                 "files.trimTrailingWhitespace": true
             }
@@ -62,7 +65,7 @@
             ]
         }
     },
-     "remoteUser": "vscode",
+    "remoteUser": "vscode",
     "containerUser": "vscode",
     //"runArgs": [
     //    "--userns=keep-id"
