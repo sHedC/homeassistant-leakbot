@@ -2,31 +2,21 @@
 
 from __future__ import annotations
 
-import asyncio
-
 from .entity import LeakbotEntity
 from .coordinator import LeakbotDataUpdateCoordinator
 from .const import DOMAIN
 
-from decimal import Decimal
-from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import datetime
 
 from homeassistant.components.calendar import (
     CalendarEntity,
     CalendarEntityDescription,
-    CalendarEntityFeature,
     CalendarEvent,
-    CalendarListView,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform, UnitOfTime
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import StateType
-from homeassistant.util import slugify, dt
-
-from .const import LOGGER
 
 
 async def async_setup_entry(

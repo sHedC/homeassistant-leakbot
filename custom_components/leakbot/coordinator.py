@@ -4,17 +4,12 @@ from __future__ import annotations
 
 import logging
 
-from dataclasses import dataclass
 from datetime import timedelta, datetime
 
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.components.calendar import (
-    CalendarEntity,
-    CalendarEntityDescription,
-    CalendarEntityFeature,
     CalendarEvent,
-    CalendarListView,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import (
@@ -26,7 +21,7 @@ from homeassistant.helpers.entity_registry import (
     async_get,
     async_entries_for_config_entry,
 )
-from homeassistant.util import slugify, dt
+from homeassistant.util import dt
 
 from .api import (
     LeakbotApiClient,
@@ -128,7 +123,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                     finished = True
 
             if not firstBuild:
-                finished = True
+                finished = start_date <= device["event_end_date"]
 
         device["event_start_date"] = device.get("event_start_date", start_date)
         device["event_end_date"] = end_date
@@ -169,6 +164,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             # Update Device Information and Water Usage
             for device_id, device in result_data["devices"].items():
                 device["info"] = await self.client.get_device_data(device_id)
+
                 messages = await self.client.get_device_messages(device_id)
                 device["last_update"] = messages["list"]["record"][0]
 
