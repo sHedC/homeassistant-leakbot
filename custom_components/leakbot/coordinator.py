@@ -7,6 +7,7 @@ import logging
 from dataclasses import dataclass
 from datetime import timedelta, datetime
 
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.components.calendar import (
     CalendarEntity,
@@ -106,37 +107,30 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
     ) -> None:
         """Initialize Leakbot Events."""
         end_date = datetime.now()
+        start_date = end_date
+        device["events"] = device.get("events", [])
+        firstBuild = device["events"] == []
 
-        if device.get("events") is None:
-            device["events"] = []
-            start_date = end_date - timedelta(days=90)
-            finish = False
-            while not finish:
-                starting_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
-                events = await self.client.get_device_simple_event_list(
-                    device_id, starting_date
-                )
-                start_date = start_date - timedelta(days=90)
-
-                for event in events["events"]:
-                    if event not in device["events"]:
-                        device["events"].append(event)
-
-                    if event.get("derived_event_code") == "Registered":
-                        finish = True
-
-            device["event_start_date"] = start_date
-        else:
-            end_date = datetime.now()
-            start_date = device["event_end_date"] - timedelta(days=10)
+        # Loop until done, if new then
+        finished = False
+        while not finished:
+            start_date = start_date - timedelta(days=90)
             starting_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
             events = await self.client.get_device_simple_event_list(
                 device_id, starting_date
             )
+
             for event in events["events"]:
                 if event not in device["events"]:
                     device["events"].append(event)
 
+                if event.get("derived_event_code") == "Registered":
+                    finished = True
+
+            if not firstBuild:
+                finished = True
+
+        device["event_start_date"] = device.get("event_start_date", start_date)
         device["event_end_date"] = end_date
 
     async def _async_update_data(self):
@@ -183,34 +177,8 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                     device_id, 0
                 )
 
-                # Check for Alerts, Informational for now!!!
-                messages = await self.client.get_device_messages(device_id)
-                for message in messages["list"]["record"]:
-                    if message["msg_type"] == "10" and message["event_type"] != "null":
-                        LOGGER.warning(
-                            "Unrecognized Alert, please report! Date: %s, Msg Type: %s, Event Type: %s",
-                            message["messageTimestamp"],
-                            message["msg_type"],
-                            message["event_type"],
-                        )
-
-                    if message["msg_type"] == "9" and int(message["event_type"]) > 2:
-                        LOGGER.warning(
-                            "Unrecognized Alert, please report! Date: %s, Msg Type: %s, Event Type: %s",
-                            message["messageTimestamp"],
-                            message["msg_type"],
-                            message["event_type"],
-                        )
-
                 # Update Events
                 await self._async_update_events(device_id, device)
-
-                LOGGER.warning(
-                    "Start: %s, End: %s, Events: %s",
-                    device["event_start_date"],
-                    device["event_end_date"],
-                    device["events"],
-                )
 
             return result_data
         except LeakbotApiClientError as exception:
