@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+
 from .entity import LeakbotEntity
 from .coordinator import LeakbotDataUpdateCoordinator
 from .const import DOMAIN
@@ -13,10 +15,22 @@ from homeassistant.components.calendar import (
     CalendarEntityDescription,
     CalendarEvent,
 )
+from homeassistant.components.recorder.models import (
+    StatisticData,
+    StatisticMetaData,
+    StatisticMeanType,
+)
+from homeassistant.components.recorder.statistics import (
+    async_import_statistics,
+    get_instance,
+    get_last_statistics,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
+from .const import LOGGER
 
 
 async def async_setup_entry(
@@ -32,7 +46,7 @@ async def async_setup_entry(
                 coordinator,
                 device,
                 CalendarEntityDescription(
-                    key="leakbot_event",
+                    key="events",
                     translation_key="leakbot_event",
                     has_entity_name=True,
                     name="leakbot_event",
@@ -67,6 +81,16 @@ class LeakbotEventsCalendar(LeakbotEntity, CalendarEntity):
         """Return the next upcoming event."""
         return None
 
+    async def async_added_to_hass(self) -> None:
+        """Handle the addition of the calendar to Home Assistant."""
+        # Perform initial statistic import when calendar is added.
+        await self.update_statistics()
+        return await super().async_added_to_hass()
+
+    def _handle_coordinator_update(self) -> None:
+        """Handle the update from the coordinator."""
+        asyncio.run_coroutine_threadsafe(self.update_statistics(), self.hass.loop)
+
     async def async_get_events(
         self, hass: HomeAssistant, start_date: datetime, end_date: datetime
     ) -> list[CalendarEvent]:
@@ -74,3 +98,53 @@ class LeakbotEventsCalendar(LeakbotEntity, CalendarEntity):
         return await self.coordinator.async_get_events(
             self._device_id, start_date, end_date
         )
+
+    async def update_statistics(self) -> None:
+        """Update the statistics for the event history."""
+        # Update the statistics for the event history.
+        # Going to see if we can use the event history to store
+        # all calendar events.
+        statistic_id = self.entity_id
+        statistics_since = datetime.fromtimestamp(0)
+
+        last_stats = await get_instance(self.hass).async_add_executor_job(
+            get_last_statistics,
+            self.hass,
+            1,
+            statistic_id,
+            False,
+            {},
+        )
+
+        if last_stats:
+            statistics_since = datetime.fromtimestamp(
+                last_stats[statistic_id][0].get("end") or 0
+            )
+
+        events = self.get_device_data[self.entity_description.key]
+        LOGGER.warning(
+            "Leakbot Calendar: %s - %s - %s - %s",
+            self.entity_id,
+            events,
+            statistics_since,
+            last_stats,
+        )
+
+        # Update Statistics if needed.
+        update_happened = False
+        new_stats = []
+        for event in reversed(events):
+            event_id = event.get("derived_event_id")
+
+        if update_happened:
+            # If we have new statistics, we need to update the calendar
+            # with the new statistics.
+            new_stats_meta = StatisticMetaData(
+                statistic_id=statistic_id,
+                source="recorder",
+                name=self.name,
+                unit_of_measurement=self.unit_of_measurement,
+                has_mean=False,
+                mean_type=StatisticMeanType.NONE,
+            )
+            async_import_statistics(self.hass, new_stats_meta, new_stats)
