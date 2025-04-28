@@ -8,7 +8,7 @@ from .entity import LeakbotEntity
 from .coordinator import LeakbotDataUpdateCoordinator
 from .const import DOMAIN
 
-from datetime import datetime
+from datetime import datetime, UTC
 
 from homeassistant.components.calendar import (
     CalendarEntity,
@@ -139,7 +139,7 @@ class LeakbotEventsCalendar(LeakbotEntity, CalendarEntity):
             start_date = dt.as_local(
                 datetime.strptime(
                     event.get("derived_event_created"), "%Y-%m-%d %H:%M:%S"
-                )
+                ).replace(tzinfo=UTC)
             )
             closed = event.get("derived_event_closed")
             if closed != "null":
@@ -147,8 +147,11 @@ class LeakbotEventsCalendar(LeakbotEntity, CalendarEntity):
             else:
                 end_date = start_date
 
+            LOGGER.warning("Start: %s, End: %s", start_date, end_date)
+
             code = event.get("derived_event_code")
-            new_stats.append(StatisticData(start=start_date, end=end_date, state=code))
+            new_stats.append(StatisticData(start=start_date, state=code))
+            update_happened = True
 
         if update_happened:
             # If we have new statistics, we need to update the calendar
@@ -158,7 +161,7 @@ class LeakbotEventsCalendar(LeakbotEntity, CalendarEntity):
                 source="recorder",
                 name=self.name,
                 unit_of_measurement=self.unit_of_measurement,
-                has_mean=False,
+                has_sum=False,
                 mean_type=StatisticMeanType.NONE,
             )
             async_import_statistics(self.hass, new_stats_meta, new_stats)
