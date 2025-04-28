@@ -29,6 +29,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt
 
 from .const import LOGGER
 
@@ -123,9 +124,8 @@ class LeakbotEventsCalendar(LeakbotEntity, CalendarEntity):
 
         events = self.get_device_data[self.entity_description.key]
         LOGGER.warning(
-            "Leakbot Calendar: %s - %s - %s - %s",
+            "Leakbot Calendar: %s - %s - %s",
             self.entity_id,
-            events,
             statistics_since,
             last_stats,
         )
@@ -135,6 +135,20 @@ class LeakbotEventsCalendar(LeakbotEntity, CalendarEntity):
         new_stats = []
         for event in reversed(events):
             event_id = event.get("derived_event_id")
+
+            start_date = dt.as_local(
+                datetime.strptime(
+                    event.get("derived_event_created"), "%Y-%m-%d %H:%M:%S"
+                )
+            )
+            closed = event.get("derived_event_closed")
+            if closed != "null":
+                end_date = dt.as_local(datetime.strptime(closed, "%Y-%m-%d %H:%M:%S"))
+            else:
+                end_date = start_date
+
+            code = event.get("derived_event_code")
+            new_stats.append(StatisticData(start=start_date, end=end_date, state=code))
 
         if update_happened:
             # If we have new statistics, we need to update the calendar
