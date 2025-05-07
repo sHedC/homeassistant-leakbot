@@ -31,7 +31,8 @@
             "device_status": {
                 "name": "Leak Status",
                 "state": {
-                    "leak_inactive": "No Leak"
+                    "leak_inactive": "No Leak",
+                    "high_usage": "High Usage"
                 }
             },
             "leak_free_days": {
