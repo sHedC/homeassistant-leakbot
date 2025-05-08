@@ -21,7 +21,7 @@ from .api import (
     LeakbotApiClientCommunicationError,
     LeakbotApiClientError,
 )
-from .const import DOMAIN, LOGGER, DEFAULT_REFRESH
+from .const import DOMAIN, LOGGER, DEFAULT_REFRESH, MIN_REFRESH, MAX_REFRESH
 
 
 class LeakbotFlowHandler(ConfigFlow, domain=DOMAIN):
@@ -46,6 +46,9 @@ class LeakbotFlowHandler(ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(
                     title=user_input[CONF_USERNAME],
                     data=user_input,
+                    options={
+                        CONF_SCAN_INTERVAL: user_input[CONF_SCAN_INTERVAL],
+                    },
                 )
             else:
                 _errors = result
@@ -66,6 +69,12 @@ class LeakbotFlowHandler(ConfigFlow, domain=DOMAIN):
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.PASSWORD
                         ),
+                    ),
+                    vol.Required(
+                        CONF_SCAN_INTERVAL,
+                        default=DEFAULT_REFRESH,
+                    ): vol.All(
+                        vol.Coerce(int), vol.Range(min=MIN_REFRESH, max=MAX_REFRESH)
                     ),
                 }
             ),
@@ -162,6 +171,13 @@ class LeakbotOptionsFlowHandler(OptionsFlow):
         self.config_entry = config_entry
         self.options = dict(config_entry.options)
 
+    async def async_step_init(
+        self,
+        user_input: dict[str, any] | None = None,  # pylint: disable=unused-argument
+    ) -> FlowResult:
+        """Manage the options."""
+        return await self.async_step_user()
+
     async def async_step_user(
         self,
         user_input: dict | None = None,
@@ -180,7 +196,9 @@ class LeakbotOptionsFlowHandler(OptionsFlow):
                     vol.Required(
                         CONF_SCAN_INTERVAL,
                         default=self.options.get(CONF_SCAN_INTERVAL, DEFAULT_REFRESH),
-                    ): vol.All(vol.Coerce(int), vol.Range(min=15, max=21600))
+                    ): vol.All(
+                        vol.Coerce(int), vol.Range(min=MIN_REFRESH, max=MAX_REFRESH)
+                    )
                 }
             ),
         )

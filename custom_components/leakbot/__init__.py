@@ -7,12 +7,17 @@ https://github.com/sHedC/homeassistant-leakbot
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
+from homeassistant.const import (
+    CONF_PASSWORD,
+    CONF_USERNAME,
+    CONF_SCAN_INTERVAL,
+    Platform,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import LeakbotApiClient
-from .const import DOMAIN
+from .const import DOMAIN, DEFAULT_REFRESH
 from .coordinator import LeakbotDataUpdateCoordinator
 
 PLATFORMS: list[Platform] = [
@@ -33,6 +38,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             session=async_get_clientsession(hass),
         ),
         entry=entry,
+        scan_interval=entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_REFRESH),
     )
     await coordinator.async_config_entry_first_refresh()
 

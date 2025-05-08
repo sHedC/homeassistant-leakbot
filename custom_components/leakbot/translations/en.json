@@ -20,8 +20,7 @@
             "user": {
                 "description": "Set Options for the Leakbot integration.",
                 "data": {
-                    "scan_interval": "Minutes between data refresh requests (min: 15 min, max: 6 hours)",
-                    "look_back": "Years look back for start (min: 2, max: 10)"
+                    "scan_interval": "Minutes between data refresh requests."
                 }
             }
         }

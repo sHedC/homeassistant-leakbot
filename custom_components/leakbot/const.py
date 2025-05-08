@@ -10,3 +10,5 @@ VERSION = "1.0.0-b0"
 ATTRIBUTION = "Data provided by https://leakbot.io"
 
 DEFAULT_REFRESH = 30
+MIN_REFRESH = 15
+MAX_REFRESH = 21600

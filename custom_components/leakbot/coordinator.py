@@ -43,6 +43,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
         hass: HomeAssistant,
         client: LeakbotApiClient,
         entry: ConfigEntry,
+        scan_interval: int,
     ) -> None:
         """Initialize."""
         self.client = client
@@ -53,7 +54,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             hass=hass,
             logger=LOGGER,
             name=DOMAIN,
-            update_interval=timedelta(minutes=5),
+            update_interval=timedelta(minutes=scan_interval),
         )
 
         self.old_entries: dict[str, list[str]] = {}
