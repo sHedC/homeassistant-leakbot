@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import logging
-
 from datetime import timedelta, datetime
-
+from pathlib import Path
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.components.calendar import (
@@ -31,8 +29,7 @@ from .api import (
     LeakbotApiClientError,
 )
 from .const import DOMAIN, LOGGER
-
-_LOGGER = logging.getLogger(__name__)
+from .store import LocalCalendarStore
 
 
 class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
@@ -101,13 +98,21 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_events(
         self, device_id: str, device: dict[str, any]
     ) -> None:
-        """Initialize Leakbot Events."""
-        end_date = datetime.now()
-        start_date = end_date
-        device["events"] = device.get("events", [])
-        firstBuild = device["events"] == []
+        """Update Leakbot Events."""
+        if not device.get("events"):
+            path = Path(
+                self.hass.config.path(
+                    f"custom_components/{DOMAIN}/.storage/{device_id}.ics"
+                )
+            )
+            device["events"] = LocalCalendarStore(self.hass, path)
 
-        # Loop until done, if new then
+        end_date = datetime.now()
+        stop_date = device.get("event_end_date", datetime(2020, 1, 1))
+        start_date = device.get("event_start_date", end_date)
+        new_events = []
+
+        # Get Events
         finished = False
         while not finished:
             start_date = start_date - timedelta(days=90)
@@ -117,17 +122,20 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             )
 
             for event in events["events"]:
-                if event not in device["events"]:
-                    device["events"].append(event)
+                if event not in new_events:
+                    new_events.append(event)
 
-                if event.get("derived_event_code") == "Registered":
-                    finished = True
+                finished = (
+                    event.get("derived_event_closed") == "Registered"
+                    or start_date <= stop_date
+                )
 
-            if not firstBuild:
-                finished = start_date <= device["event_end_date"]
-
+        # Initiate/ Update the Calendar Store
         device["event_start_date"] = device.get("event_start_date", start_date)
         device["event_end_date"] = end_date
+        for event in new_events:
+            event_id = event["derived_event_id"]
+            device["events"].
 
     async def _async_update_data(self):
         """Update data via library."""

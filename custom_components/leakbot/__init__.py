@@ -5,6 +5,7 @@ https://github.com/sHedC/homeassistant-leakbot
 """
 
 from __future__ import annotations
+from pathlib import Path
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -15,7 +16,6 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-
 from .api import LeakbotApiClient
 from .const import DOMAIN, DEFAULT_REFRESH
 from .coordinator import LeakbotDataUpdateCoordinator
@@ -30,6 +30,7 @@ PLATFORMS: list[Platform] = [
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up this integration using UI."""
     hass.data.setdefault(DOMAIN, {})
+
     hass.data[DOMAIN][entry.entry_id] = coordinator = LeakbotDataUpdateCoordinator(
         hass=hass,
         client=LeakbotApiClient(
