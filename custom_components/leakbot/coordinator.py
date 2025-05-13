@@ -125,7 +125,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
         end_date = datetime.now()
         stop_date = device.get("event_end_date", datetime(2020, 1, 1))
         start_date = device.get("event_start_date", end_date)
-        new_events = []
+        new_events: Calendar = Calendar()
 
         # Get Events
         finished = False
@@ -137,8 +137,20 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             )
 
             for event in events["events"]:
-                if event not in new_events:
-                    new_events.append(event)
+                new_events.append(
+                    Event(
+                        start=dt.as_local(
+                            datetime.fromisoformat(event["derived_event_created"])
+                        ),
+                        end=dt.as_local(
+                            datetime.fromisoformat(event["derived_event_closed"])
+                        ),
+                        summary=event["derived_event_code"],
+                        description=event["derived_event_description"],
+                        location=event["derived_event_location"],
+                        uid=event["derived_event_id"],
+                    )
+                )
 
                 finished = (
                     event.get("derived_event_closed") == "Registered"
