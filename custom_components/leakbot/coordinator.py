@@ -5,6 +5,13 @@ from __future__ import annotations
 from datetime import timedelta, datetime
 from pathlib import Path
 
+from ical.calendar import Calendar
+from ical.calendar_stream import IcsCalendarStream
+from ical.event import Event
+from ical.exceptions import CalendarParseError
+from ical.store import EventStore, EventStoreError
+from ical.types import Range, Recur
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.components.calendar import (
     CalendarEvent,
@@ -30,6 +37,8 @@ from .api import (
 )
 from .const import DOMAIN, LOGGER
 from .store import LocalCalendarStore
+
+PRODID = "-//homeassistant.io//leakbot_calendar 1.0//EN"
 
 
 class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
@@ -99,13 +108,19 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
         self, device_id: str, device: dict[str, any]
     ) -> None:
         """Update Leakbot Events."""
-        if not device.get("events"):
+        device_calendar: Calendar = device.get("calendar")
+        if not device_calendar:
             path = Path(
                 self.hass.config.path(
                     f"custom_components/{DOMAIN}/.storage/{device_id}.ics"
                 )
             )
-            device["events"] = LocalCalendarStore(self.hass, path)
+            ics = LocalCalendarStore(self.hass, path)
+            ics.async_load()
+
+            device_calendar = await self.hass.async_add_executor_job(
+                IcsCalendarStream.calendar_from_ics, ics
+            )
 
         end_date = datetime.now()
         stop_date = device.get("event_end_date", datetime(2020, 1, 1))
@@ -135,7 +150,6 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
         device["event_end_date"] = end_date
         for event in new_events:
             event_id = event["derived_event_id"]
-            device["events"].
 
     async def _async_update_data(self):
         """Update data via library."""
