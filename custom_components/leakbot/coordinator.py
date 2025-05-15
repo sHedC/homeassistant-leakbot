@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, UTC
 from pathlib import Path
 
 from ical.calendar import Calendar
@@ -36,7 +36,7 @@ from .api import (
     LeakbotApiClientError,
 )
 from .const import DOMAIN, LOGGER
-from .store import LocalCalendarStore
+from .store import LocalEventListStore
 
 PRODID = "-//homeassistant.io//leakbot_calendar 1.0//EN"
 
@@ -115,12 +115,12 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                     f"custom_components/{DOMAIN}/.storage/{device_id}.ics"
                 )
             )
-            ics = LocalCalendarStore(self.hass, path)
-            ics.async_load()
+            ics = LocalEventListStore(self.hass, path)
+            # ics.async_load()
 
-            device_calendar = await self.hass.async_add_executor_job(
-                IcsCalendarStream.calendar_from_ics, ics
-            )
+            # device_calendar = await self.hass.async_add_executor_job(
+            #    IcsCalendarStream.calendar_from_ics, ics
+            # )
 
         end_date = datetime.now()
         stop_date = device.get("event_end_date", datetime(2020, 1, 1))
@@ -137,17 +137,21 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             )
 
             for event in events["events"]:
-                new_events.append(
+                cal_start_date = datetime.strptime(
+                    event.get("derived_event_created"), "%Y-%m-%d %H:%M:%S"
+                ).replace(tzinfo=UTC)
+                if event.get("derived_event_closed") == "null":
+                    cal_end_date = cal_start_date + timedelta(minutes=30)
+                else:
+                    cal_end_date = datetime.strptime(
+                        event.get("derived_event_closed"), "%Y-%m-%d %H:%M:%S"
+                    ).replace(tzinfo=UTC)
+
+                new_events.events.append(
                     Event(
-                        start=dt.as_local(
-                            datetime.fromisoformat(event["derived_event_created"])
-                        ),
-                        end=dt.as_local(
-                            datetime.fromisoformat(event["derived_event_closed"])
-                        ),
+                        start=dt.as_local(cal_start_date),
+                        end=dt.as_local(cal_end_date),
                         summary=event["derived_event_code"],
-                        description=event["derived_event_description"],
-                        location=event["derived_event_location"],
                         uid=event["derived_event_id"],
                     )
                 )
@@ -157,11 +161,11 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                     or start_date <= stop_date
                 )
 
+        # Merge Calendar Events with Main Calendar
+
         # Initiate/ Update the Calendar Store
         device["event_start_date"] = device.get("event_start_date", start_date)
         device["event_end_date"] = end_date
-        for event in new_events:
-            event_id = event["derived_event_id"]
 
     async def _async_update_data(self):
         """Update data via library."""
