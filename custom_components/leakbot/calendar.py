@@ -122,7 +122,8 @@ class LeakbotEventsCalendar(LeakbotEntity, CalendarEntity):
                 last_stats[statistic_id][0].get("end") or 0
             )
 
-        events = self.get_device_data[self.entity_description.key]
+        # events = self.get_device_data[self.entity_description.key]
+        events = []
         LOGGER.warning(
             "Leakbot Calendar: %s - %s - %s",
             self.entity_id,

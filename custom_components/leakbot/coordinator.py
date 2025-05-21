@@ -121,51 +121,70 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             # device_calendar = await self.hass.async_add_executor_job(
             #    IcsCalendarStream.calendar_from_ics, ics
             # )
+            device_calendar = Calendar()  #
+            LOGGER.warning("No Calendar Found, creating new one")
 
-        end_date = datetime.now()
-        stop_date = device.get("event_end_date", datetime(2020, 1, 1))
-        start_date = device.get("event_start_date", end_date)
-        new_events: Calendar = Calendar()
+        # Get the date to start retrieving events from,
+        # this should be based on the last calendar event
+        # date or start of the company in 2016.
+        if device_calendar.events:
+            start_date = device_calendar.events[0].start
+        else:
+            start_date = datetime(2016, 1, 1, tzinfo=UTC)
 
-        # Get Events
-        finished = False
-        while not finished:
-            start_date = start_date - timedelta(days=90)
-            starting_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
-            events = await self.client.get_device_simple_event_list(
-                device_id, starting_date
-            )
+        calendar_events: EventStore = EventStore(device_calendar)
 
-            for event in events["events"]:
-                cal_start_date = datetime.strptime(
+        # Get the latest events from Leadbot.
+        start_date = start_date - timedelta(days=10)
+        starting_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
+        events = await self.client.get_device_simple_event_list(
+            device_id, starting_date
+        )
+
+        # Check if we have any events.
+        for event in events["events"]:
+            cal_start_date = dt.as_local(
+                datetime.strptime(
                     event.get("derived_event_created"), "%Y-%m-%d %H:%M:%S"
                 ).replace(tzinfo=UTC)
-                if event.get("derived_event_closed") == "null":
-                    cal_end_date = cal_start_date + timedelta(minutes=30)
-                else:
-                    cal_end_date = datetime.strptime(
+            )
+            if event.get("derived_event_closed") == "null":
+                cal_end_date = cal_start_date + timedelta(minutes=30)
+            else:
+                cal_end_date = dt.as_local(
+                    datetime.strptime(
                         event.get("derived_event_closed"), "%Y-%m-%d %H:%M:%S"
                     ).replace(tzinfo=UTC)
-
-                new_events.events.append(
-                    Event(
-                        start=dt.as_local(cal_start_date),
-                        end=dt.as_local(cal_end_date),
-                        summary=event["derived_event_code"],
-                        uid=event["derived_event_id"],
-                    )
                 )
 
-                finished = (
-                    event.get("derived_event_closed") == "Registered"
-                    or start_date <= stop_date
+            # Try to update the event, if failes then add it.
+            # Seems there is no open method to check if the event exists
+            # and not writing my own.
+            try:
+                item_event = Event(
+                    start=cal_start_date,
+                    end=cal_end_date,
+                    summary=event["derived_event_code"],
+                    uid=event["derived_event_id"],
                 )
-
-        # Merge Calendar Events with Main Calendar
+                calendar_events.edit(
+                    uid=event["derived_event_id"],
+                    item=item_event,
+                )
+            except EventStoreError:
+                calendar_events.add(item_event)
+                LOGGER.warning(
+                    "Event Add: Start: %s, End:%s, Summary:%s, Created:%s, Name:%s, Interaction:%s",
+                    item_event.start,
+                    item_event.end,
+                    item_event.summary,
+                    event["crm_business_created"],
+                    event["crm_business_name"],
+                    event["interaction_flag"],
+                )
 
         # Initiate/ Update the Calendar Store
-        device["event_start_date"] = device.get("event_start_date", start_date)
-        device["event_end_date"] = end_date
+        device["calendar"] = device_calendar
 
     async def _async_update_data(self):
         """Update data via library."""
