@@ -3,19 +3,12 @@
 from __future__ import annotations
 
 from datetime import timedelta, datetime, UTC
-from pathlib import Path
 
 from ical.calendar import Calendar
-from ical.calendar_stream import IcsCalendarStream
 from ical.event import Event
-from ical.exceptions import CalendarParseError
 from ical.store import EventStore, EventStoreError
-from ical.types import Range, Recur
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.components.calendar import (
-    CalendarEvent,
-)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
@@ -36,7 +29,6 @@ from .api import (
     LeakbotApiClientError,
 )
 from .const import DOMAIN, LOGGER
-from .store import LocalEventListStore
 
 PRODID = "-//homeassistant.io//leakbot_calendar 1.0//EN"
 
@@ -108,25 +100,10 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
         self, device_id: str, device: dict[str, any]
     ) -> None:
         """Update Leakbot Events."""
-        device_calendar: Calendar = device.get("calendar")
-        if not device_calendar:
-            path = Path(
-                self.hass.config.path(
-                    f"custom_components/{DOMAIN}/.storage/{device_id}.ics"
-                )
-            )
-            ics = LocalEventListStore(self.hass, path)
-            # ics.async_load()
-
-            # device_calendar = await self.hass.async_add_executor_job(
-            #    IcsCalendarStream.calendar_from_ics, ics
-            # )
-            device_calendar = Calendar()  #
-            LOGGER.warning("No Calendar Found, creating new one")
-
         # Get the date to start retrieving events from,
         # this should be based on the last calendar event
         # date or start of the company in 2016.
+        device_calendar: Calendar = device.get("calendar", Calendar())
         if device_calendar.events:
             start_date = device_calendar.events[0].start
         else:
@@ -165,6 +142,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                     start=cal_start_date,
                     end=cal_end_date,
                     summary=event["derived_event_code"],
+                    description=event["interaction_flag"],
                     uid=event["derived_event_id"],
                 )
                 calendar_events.edit(
@@ -173,15 +151,6 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                 )
             except EventStoreError:
                 calendar_events.add(item_event)
-                LOGGER.warning(
-                    "Event Add: Start: %s, End:%s, Summary:%s, Created:%s, Name:%s, Interaction:%s",
-                    item_event.start,
-                    item_event.end,
-                    item_event.summary,
-                    event["crm_business_created"],
-                    event["crm_business_name"],
-                    event["interaction_flag"],
-                )
 
         # Initiate/ Update the Calendar Store
         device["calendar"] = device_calendar
@@ -237,30 +206,3 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             return result_data
         except LeakbotApiClientError as exception:
             raise UpdateFailed(exception) from exception
-
-    async def async_get_events(
-        self, device_id: str, start_date: datetime, end_date: datetime
-    ) -> list[CalendarEvent]:
-        """Get Calendar Events within a date range."""
-        events = self.data["devices"][device_id].get("events", [])
-        calendar_events = []
-
-        for event in events:
-            event_start = datetime.fromisoformat(event["derived_event_created"])
-            event_closed = event["derived_event_closed"]
-
-            if event["derived_event_closed"] == "null":
-                event_end = event_start + timedelta(minutes=30)
-            else:
-                event_end = datetime.fromisoformat(event_closed)
-
-            if event_start <= event_end:
-                calendar_events.append(
-                    CalendarEvent(
-                        start=dt.as_local(event_start),
-                        end=dt.as_local(event_end),
-                        summary=event["derived_event_code"],
-                    )
-                )
-
-        return calendar_events
