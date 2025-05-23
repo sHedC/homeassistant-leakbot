@@ -42,7 +42,8 @@
                 "name": "Leak Status",
                 "state": {
                     "leak_inactive": "No Leak",
-                    "high_usage": "High Usage"
+                    "high_usage": "High Usage",
+                    "low_battery": "Low Battery"
                 }
             },
             "leak_free_days": {

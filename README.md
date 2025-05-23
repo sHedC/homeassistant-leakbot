@@ -33,10 +33,18 @@ The Water Usage Events sensor does not have a current value, this sensor imports
 
 Water Usage Events is used only for showing in the history.
 
+Past Calendar Notifications have no current state, this is because calendar events need a start and end date. Whilst Leakbot notifies of the start quick quickly after the event the end does not get notified for hours and this causes bad historic and event data in the system.
+
+Event Status is however shown in the Leak Status, for example the ones I have seen:
+- leak_inactive : No Leak
+- high_usage: High Usage
+- low_battery: Low Battery
+
+Integration will update every 30 min by default but can be changed in the config options.
+
 NOTES:
 - For a new install of the Leakbot device it can take 24 hours before the API will start returning data, before that you will see invalid values.
-- The integration updates every four hours at this time, it is not currently changable, it only updates once a day as normal, not sure if a leak forces update.
-- There are three sensors: battery status, leak status and leak free days. There is also a device tracker but might remove that as seems pointless.
+- There are three sensors: battery status, leak status and leak free days.
 - Water Usage Events status does not show in the energy dashboard as this requires a volume unit of measure which we do not have.
 - Some translation is done as don't know what other options there are, example goodbattery not seen other states to setup.
 - Diagnotic download is not yet available.
