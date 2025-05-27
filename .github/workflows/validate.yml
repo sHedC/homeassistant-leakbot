@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - "main"
-      - "sHedC/issue168"
   workflow_call:
 
 jobs:
