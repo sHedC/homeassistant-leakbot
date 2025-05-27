@@ -1,0 +1,177 @@
+{
+    "events": [
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2025-04-11 05:21:29",
+            "derived_event_code": "HighFlow",
+            "derived_event_created": "2025-04-11 02:18:05",
+            "derived_event_id": "4142204",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "null",
+            "derived_event_code": "HasSignal",
+            "derived_event_created": "2024-11-24 12:37:39",
+            "derived_event_id": "3724987",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2024-11-24 12:37:39",
+            "derived_event_code": "LostSignal",
+            "derived_event_created": "2024-10-26 01:12:00",
+            "derived_event_id": "3653798",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2024-10-26 01:12:00",
+            "derived_event_code": "LowSignal",
+            "derived_event_created": "2024-10-25 01:11:35",
+            "derived_event_id": "3651580",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2024-01-28 11:36:20",
+            "derived_event_code": "LowBattery",
+            "derived_event_created": "2024-01-17 04:29:36",
+            "derived_event_id": "2692721",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2024-10-25 01:11:35",
+            "derived_event_code": "HasSignal",
+            "derived_event_created": "2023-11-01 17:19:07",
+            "derived_event_id": "2525434",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2023-11-01 17:19:07",
+            "derived_event_code": "LostSignal",
+            "derived_event_created": "2023-10-19 21:39:46",
+            "derived_event_id": "2493397",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2023-10-19 21:39:46",
+            "derived_event_code": "LowSignal",
+            "derived_event_created": "2023-10-18 21:40:14",
+            "derived_event_id": "2490747",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2023-06-11 09:02:57",
+            "derived_event_code": "HighFlow",
+            "derived_event_created": "2023-06-11 03:05:22",
+            "derived_event_id": "2130285",
+            "interaction_flag": "GetHelp,2023-06-11 08:28:05"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2023-10-18 21:40:14",
+            "derived_event_code": "HasSignal",
+            "derived_event_created": "2023-04-19 09:21:16",
+            "derived_event_id": "1989391",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2023-04-19 09:21:16",
+            "derived_event_code": "LostSignal",
+            "derived_event_created": "2023-04-18 20:47:03",
+            "derived_event_id": "1988167",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2023-04-18 20:47:03",
+            "derived_event_code": "LowSignal",
+            "derived_event_created": "2023-04-17 20:47:05",
+            "derived_event_id": "1985898",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2023-01-10 08:27:54",
+            "derived_event_code": "HighFlow",
+            "derived_event_created": "2023-01-09 20:19:50",
+            "derived_event_id": "1775061",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "null",
+            "derived_event_code": "LeakFalse",
+            "derived_event_created": "2022-03-19 13:10:18",
+            "derived_event_id": "1163961",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2022-03-25 13:53:06",
+            "derived_event_code": "DisableLeakAlertsReminder",
+            "derived_event_created": "2022-03-16 10:08:09",
+            "derived_event_id": "1159327",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "2022-03-13 13:58:12",
+            "crm_business_name": "FailedCustomerRepaired",
+            "derived_event_closed": "2022-03-19 13:10:18",
+            "derived_event_code": "LeakTrue",
+            "derived_event_created": "2022-02-27 15:31:44",
+            "derived_event_id": "1134600",
+            "interaction_flag": "CustomerRepaired,2022-03-06 19:36:46|FixMyself,2022-03-06 19:36:43|DrippingTap,2022-03-06 19:36:39|NoneOfThese,2022-03-06 19:36:33|CustomerRepaired,2022-02-27 20:55:49|FixMyself,2022-02-27 20:55:45|DrippingTap,2022-02-27 20:55:43|NoneOfThese,2022-02-27 20:55:38"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "null",
+            "derived_event_code": "OnPipe",
+            "derived_event_created": "2022-02-16 16:39:45",
+            "derived_event_id": "1117555",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2023-04-17 20:47:05",
+            "derived_event_code": "HasSignal",
+            "derived_event_created": "2022-02-16 16:39:23",
+            "derived_event_id": "1117554",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2022-02-16 16:39:45",
+            "derived_event_code": "Registered",
+            "derived_event_created": "2022-02-16 16:39:23",
+            "derived_event_id": "1117553",
+            "interaction_flag": "null"
+        }
+    ],
+    "ts": 1744453735031,
+    "ms": 110
+}

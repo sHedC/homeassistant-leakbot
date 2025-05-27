@@ -15,12 +15,12 @@ from datetime import date, datetime, timedelta
 from homeassistant.components.recorder.models import (
     StatisticData,
     StatisticMetaData,
-    StatisticMeanType
+    StatisticMeanType,
 )
 from homeassistant.components.recorder.statistics import (
     async_import_statistics,
     get_instance,
-    get_last_statistics
+    get_last_statistics,
 )
 from homeassistant.components.sensor import (
     SensorEntity,
@@ -80,7 +80,7 @@ ENTITY_DESCRIPTIONS = (
         has_entity_name=True,
         data_type="timestamp",
         device_class=SensorDeviceClass.TIMESTAMP,
-    )
+    ),
 )
 
 
@@ -102,7 +102,9 @@ async def async_setup_entry(
         else:
             entities.append(
                 LeakbotWaterHistorySensor(
-                    coordinator, device, LeakbotSensorEntityDescription(
+                    coordinator,
+                    device,
+                    LeakbotSensorEntityDescription(
                         key="water_usage",
                         translation_key="water_usage_events",
                         has_entity_name=True,
@@ -110,8 +112,8 @@ async def async_setup_entry(
                         entity_registry_enabled_default=True,
                         state_class=None,
                         device_class=SensorDeviceClass.WATER,
-                        native_unit_of_measurement=None
-                    )
+                        native_unit_of_measurement=None,
+                    ),
                 )
             )
 
@@ -224,29 +226,41 @@ class LeakbotWaterHistorySensor(LeakbotEntity, SensorEntity):
                 update_happened = True
 
                 statistics_sum += float(day["details"]["night"]) / 2
-                new_stats.append(StatisticData(
-                    start=query_date.replace(hour=0) + timedelta(days=int(day["offset"])),
-                    state=float(day["details"]["night"]) / 2,
-                    sum=statistics_sum
-                ))
+                new_stats.append(
+                    StatisticData(
+                        start=query_date.replace(hour=0)
+                        + timedelta(days=int(day["offset"])),
+                        state=float(day["details"]["night"]) / 2,
+                        sum=statistics_sum,
+                    )
+                )
                 statistics_sum += float(day["details"]["morning"]) / 2
-                new_stats.append(StatisticData(
-                    start=query_date.replace(hour=6) + timedelta(days=int(day["offset"])),
-                    state=float(day["details"]["morning"]) / 2,
-                    sum=statistics_sum
-                ))
+                new_stats.append(
+                    StatisticData(
+                        start=query_date.replace(hour=6)
+                        + timedelta(days=int(day["offset"])),
+                        state=float(day["details"]["morning"]) / 2,
+                        sum=statistics_sum,
+                    )
+                )
                 statistics_sum += float(day["details"]["afternoon"]) / 2
-                new_stats.append(StatisticData(
-                    start=query_date.replace(hour=12) + timedelta(days=int(day["offset"])),
-                    state=float(day["details"]["afternoon"]) / 2,
-                    sum=statistics_sum
-                ))
+                new_stats.append(
+                    StatisticData(
+                        start=query_date.replace(hour=12)
+                        + timedelta(days=int(day["offset"])),
+                        state=float(day["details"]["afternoon"]) / 2,
+                        sum=statistics_sum,
+                    )
+                )
                 statistics_sum += float(day["details"]["evening"]) / 2
-                new_stats.append(StatisticData(
-                    start=query_date.replace(hour=18) + timedelta(days=int(day["offset"])),
-                    state=float(day["details"]["evening"]) / 2,
-                    sum=statistics_sum
-                ))
+                new_stats.append(
+                    StatisticData(
+                        start=query_date.replace(hour=18)
+                        + timedelta(days=int(day["offset"])),
+                        state=float(day["details"]["evening"]) / 2,
+                        sum=statistics_sum,
+                    )
+                )
 
         if update_happened:
             # Import the statistics into the database.
@@ -256,10 +270,6 @@ class LeakbotWaterHistorySensor(LeakbotEntity, SensorEntity):
                 name=self.name,
                 source="recorder",
                 statistic_id=statistic_id,
-                unit_of_measurement=self.unit_of_measurement
+                unit_of_measurement=self.unit_of_measurement,
             )
-            async_import_statistics(
-                self.hass,
-                new_stats_meta,
-                new_stats
-            )
+            async_import_statistics(self.hass, new_stats_meta, new_stats)

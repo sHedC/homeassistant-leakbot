@@ -153,6 +153,35 @@ async def test_device_messages(
         assert device_data
 
 
+async def test_device_simpleeventlist(
+    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
+):
+    """Test getting the device simple event list."""
+    session = await aiohttp_client(leakbot_api)
+    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+
+    await api.login()
+    assert api.is_connected
+
+    devices = await api.get_device_list()
+    assert devices
+
+    for device in devices["IDs"]:
+        device_data = await api.get_device_messages(device["id"])
+        assert device_data
+
+        alert_msg = False
+        for event in device_data["list"]["record"]:
+            if event["msg_type"] == "9" and event["event_type"] == "2":
+                alert_msg = True
+                break
+
+        if alert_msg:
+            starting_date = "2025-04-11 08:00:00"
+            event_data = await api.get_device_simple_event_list(device["id"], starting_date)
+            assert event_data
+
+
 async def test_device_waterusage(
     leakbot_api: Application, aiohttp_client: ClientSessionGenerator
 ):

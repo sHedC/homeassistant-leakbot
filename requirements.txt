@@ -8,3 +8,4 @@ chardet==5.2.0
 debugpy==1.8.14
 zlib_ng==0.5.1
 isal==1.7.2
+ical==9.1.0

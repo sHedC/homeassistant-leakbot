@@ -1,9 +1,12 @@
 """DataUpdateCoordinator for Leakbot."""
+
 from __future__ import annotations
 
-import logging
+from datetime import timedelta, datetime, UTC
 
-from datetime import timedelta
+from ical.calendar import Calendar
+from ical.event import Event
+from ical.store import EventStore, EventStoreError
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -16,6 +19,7 @@ from homeassistant.helpers.entity_registry import (
     async_get,
     async_entries_for_config_entry,
 )
+from homeassistant.util import dt
 
 from .api import (
     LeakbotApiClient,
@@ -26,7 +30,7 @@ from .api import (
 )
 from .const import DOMAIN, LOGGER
 
-_LOGGER = logging.getLogger(__name__)
+PRODID = "-//homeassistant.io//leakbot_calendar 1.0//EN"
 
 
 class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
@@ -37,6 +41,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
         hass: HomeAssistant,
         client: LeakbotApiClient,
         entry: ConfigEntry,
+        scan_interval: int,
     ) -> None:
         """Initialize."""
         self.client = client
@@ -47,7 +52,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             hass=hass,
             logger=LOGGER,
             name=DOMAIN,
-            update_interval=timedelta(minutes=60),
+            update_interval=timedelta(minutes=scan_interval),
         )
 
         self.old_entries: dict[str, list[str]] = {}
@@ -91,6 +96,65 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
         except LeakbotApiClientError as exception:
             raise UpdateFailed(exception) from exception
 
+    async def _async_update_events(
+        self, device_id: str, device: dict[str, any]
+    ) -> None:
+        """Update Leakbot Events."""
+        # Get the date to start retrieving events from,
+        # this should be based on the last calendar event
+        # date or start of the company in 2016.
+        device_calendar: Calendar = device.get("calendar", Calendar())
+        if device_calendar.events:
+            start_date = device_calendar.events[0].start
+        else:
+            start_date = datetime(2016, 1, 1, tzinfo=UTC)
+
+        calendar_events: EventStore = EventStore(device_calendar)
+
+        # Get the latest events from Leadbot.
+        start_date = start_date - timedelta(days=10)
+        starting_date = start_date.strftime("%Y-%m-%d %H:%M:%S")
+        events = await self.client.get_device_simple_event_list(
+            device_id, starting_date
+        )
+
+        # Check if we have any events.
+        for event in events["events"]:
+            cal_start_date = dt.as_local(
+                datetime.strptime(
+                    event.get("derived_event_created"), "%Y-%m-%d %H:%M:%S"
+                ).replace(tzinfo=UTC)
+            )
+            if event.get("derived_event_closed") == "null":
+                cal_end_date = cal_start_date + timedelta(minutes=30)
+            else:
+                cal_end_date = dt.as_local(
+                    datetime.strptime(
+                        event.get("derived_event_closed"), "%Y-%m-%d %H:%M:%S"
+                    ).replace(tzinfo=UTC)
+                )
+
+            # Try to update the event, if failes then add it.
+            # Seems there is no open method to check if the event exists
+            # and not writing my own.
+            try:
+                item_event = Event(
+                    start=cal_start_date,
+                    end=cal_end_date,
+                    summary=event["derived_event_code"],
+                    description=event["interaction_flag"],
+                    uid=event["derived_event_id"],
+                )
+                calendar_events.edit(
+                    uid=event["derived_event_id"],
+                    item=item_event,
+                )
+            except EventStoreError:
+                calendar_events.add(item_event)
+
+        # Initiate/ Update the Calendar Store
+        device["calendar"] = device_calendar
+
     async def _async_update_data(self):
         """Update data via library."""
         if not self._connected:
@@ -127,16 +191,17 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             # Update Device Information and Water Usage
             for device_id, device in result_data["devices"].items():
                 device["info"] = await self.client.get_device_data(device_id)
+
                 messages = await self.client.get_device_messages(device_id)
                 device["last_update"] = messages["list"]["record"][0]
 
                 # Water Usage
                 device["water_usage"] = await self.client.get_device_water_usage(
-                    device_id,
-                    0
+                    device_id, 0
                 )
 
-                _LOGGER.debug("Water Usage: %s", device["water_usage"])
+                # Update Events
+                await self._async_update_events(device_id, device)
 
             return result_data
         except LeakbotApiClientError as exception:

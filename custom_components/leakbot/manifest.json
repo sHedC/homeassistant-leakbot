@@ -9,5 +9,8 @@
   "documentation": "https://github.com/sHedC/leakbot",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/sHedC/leakbot/issues",
-  "version": "1.0.0b0"
+  "requirements": [
+    "ical==9.1.0"
+  ],
+  "version": "1.0.0b1"
 }

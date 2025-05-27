@@ -2,6 +2,8 @@
 
 from aiohttp.web import Application
 
+from ical.calendar import Calendar
+
 from homeassistant.core import HomeAssistant
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -17,7 +19,7 @@ async def test_coordinator_setup(hass: HomeAssistant):
     """Test the Coordinator sets up."""
     entry = MockConfigEntry(domain=DOMAIN, data=VALID_LOGIN)
     coordinator = LeakbotDataUpdateCoordinator(
-        hass, LeakbotApiClient("", "", None), entry
+        hass, LeakbotApiClient("", "", None), entry, 15
     )
     assert coordinator
 
@@ -39,7 +41,7 @@ async def test_coordinator_data(
 
     assert api.is_connected
 
-    coordinator = LeakbotDataUpdateCoordinator(hass, api, entry)
+    coordinator = LeakbotDataUpdateCoordinator(hass, api, entry, 15)
     await coordinator.async_refresh()
 
     assert coordinator.is_connected
@@ -47,7 +49,11 @@ async def test_coordinator_data(
     assert "123456" in coordinator.data["devices"]
 
     device = coordinator.data["devices"]["123456"]
-    assert device["last_update"]["messageTimestamp"] == "2024-04-10 00:18:15"
+    assert device["last_update"]["messageTimestamp"] == "2025-04-11 02:16:26"
+    assert device["water_usage"]["days"][0]["dayNumber"] == "6"
+
+    device_cal: Calendar = device["calendar"]
+    assert device_cal.events[0].summary == "HighFlow"
 
 
 async def test_auth_error(
@@ -64,7 +70,7 @@ async def test_auth_error(
         session,
     )
 
-    coordinator = LeakbotDataUpdateCoordinator(hass, api, entry)
+    coordinator = LeakbotDataUpdateCoordinator(hass, api, entry, 15)
     await coordinator.async_refresh()
     assert not coordinator.is_connected
 
@@ -86,7 +92,7 @@ async def test_token_error(
 
     assert api.is_connected
 
-    coordinator = LeakbotDataUpdateCoordinator(hass, api, entry)
+    coordinator = LeakbotDataUpdateCoordinator(hass, api, entry, 15)
     await coordinator.async_refresh()
     assert coordinator.data
 

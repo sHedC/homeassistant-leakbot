@@ -19,6 +19,7 @@ API_TENANT_MYVIEW = "/v1.0/User/Tenant/MyView/"
 API_DEVICE_MYVIEW = "/v1.0/Device/Device/MyView/"
 API_DEVICE_MYMSG = "/v1.0/Device/Device/MyListMessagesForDevice"
 API_DEVICE_WATERUSAGE = "/v1.0/Device/Device/WaterUsage"
+API_DEVICE_MYSIMPLEMSG = "/v1.0/Device/Device/MySimpleDerivedEventList"
 
 
 class LeakbotApiClientError(Exception):
@@ -162,10 +163,29 @@ class LeakbotApiClient:
 
         return result_json
 
-    async def get_device_water_usage(self, device_id: str, timezoneoffest: int) -> dict[str, any]:
+    async def get_device_water_usage(
+        self, device_id: str, timezoneoffest: int
+    ) -> dict[str, any]:
         """Retrieve the Device Water Usage."""
-        params = {"token": self._token, "LbDevice_ID": device_id, "timeZoneOffset": timezoneoffest}
+        params = {
+            "token": self._token,
+            "LbDevice_ID": device_id,
+            "timeZoneOffset": timezoneoffest,
+        }
         result_json = await self._post(urljoin(API_URL, API_DEVICE_WATERUSAGE), params)
+
+        return result_json
+
+    async def get_device_simple_event_list(
+        self, device_id: str, starting_date: str
+    ) -> dict[str, any]:
+        """Retrieve the Device Simple Event List."""
+        params = {
+            "token": self._token,
+            "LbDevice_ID": device_id,
+            "starting_date": starting_date,
+        }
+        result_json = await self._post(urljoin(API_URL, API_DEVICE_MYSIMPLEMSG), params)
 
         return result_json
 

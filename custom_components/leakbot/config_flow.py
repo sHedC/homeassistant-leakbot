@@ -3,8 +3,15 @@
 from __future__ import annotations
 
 import voluptuous as vol
-from homeassistant import config_entries
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    OptionsFlow,
+    CONN_CLASS_CLOUD_POLL,
+)
+from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, CONF_SCAN_INTERVAL
+from homeassistant.core import callback
+from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
@@ -14,18 +21,19 @@ from .api import (
     LeakbotApiClientCommunicationError,
     LeakbotApiClientError,
 )
-from .const import DOMAIN, LOGGER
+from .const import DOMAIN, LOGGER, DEFAULT_REFRESH, MIN_REFRESH, MAX_REFRESH
 
 
-class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+class LeakbotFlowHandler(ConfigFlow, domain=DOMAIN):
     """Config flow for Leakbot."""
 
     VERSION = 1
+    CONNECTION_CLASS = CONN_CLASS_CLOUD_POLL
 
     async def async_step_user(
         self,
         user_input: dict | None = None,
-    ) -> config_entries.FlowResult:
+    ) -> FlowResult:
         """Handle a flow initialized by the user."""
         _errors = {}
         if user_input is not None:
@@ -38,6 +46,9 @@ class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(
                     title=user_input[CONF_USERNAME],
                     data=user_input,
+                    options={
+                        CONF_SCAN_INTERVAL: user_input[CONF_SCAN_INTERVAL],
+                    },
                 )
             else:
                 _errors = result
@@ -59,6 +70,12 @@ class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                             type=selector.TextSelectorType.PASSWORD
                         ),
                     ),
+                    vol.Required(
+                        CONF_SCAN_INTERVAL,
+                        default=DEFAULT_REFRESH,
+                    ): vol.All(
+                        vol.Coerce(int), vol.Range(min=MIN_REFRESH, max=MAX_REFRESH)
+                    ),
                 }
             ),
             errors=_errors,
@@ -67,7 +84,7 @@ class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_reauth_confirm(
         self,
         user_input: dict | None = None,  # pylint: disable=unused-argument
-    ) -> config_entries.FlowResult:
+    ) -> FlowResult:
         """Handle reauth confirmation."""
         assert self.reauth_entry is not None
 
@@ -105,13 +122,22 @@ class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_reauth(
-        self, user_input: dict | None = None  # pylint: disable=unused-argument
-    ) -> config_entries.FlowResult:
+        self,
+        user_input: dict | None = None,  # pylint: disable=unused-argument
+    ) -> FlowResult:
         """Handle configuration by re-auth."""
         self.reauth_entry = self.hass.config_entries.async_get_entry(
             self.context["entry_id"]
         )
         return await self.async_step_reauth_confirm()
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+        config_entry: ConfigEntry,
+    ) -> OptionsFlow:
+        """Return the option flow handler."""
+        return LeakbotOptionsFlowHandler(config_entry)
 
     async def _test_credentials(self, username: str, password: str) -> str:
         """Validate credentials."""
@@ -135,3 +161,44 @@ class LeakbotFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             result["base"] = "unknown"
 
         return result
+
+
+class LeakbotOptionsFlowHandler(OptionsFlow):
+    """Config flow options for Leakbot."""
+
+    def __init__(self, config_entry: ConfigEntry) -> None:
+        """Initialize Leakbot options flow."""
+        self.config_entry = config_entry
+        self.options = dict(config_entry.options)
+
+    async def async_step_init(
+        self,
+        user_input: dict[str, any] | None = None,  # pylint: disable=unused-argument
+    ) -> FlowResult:
+        """Manage the options."""
+        return await self.async_step_user()
+
+    async def async_step_user(
+        self,
+        user_input: dict | None = None,
+    ) -> FlowResult:
+        """Manage the Leakbot options."""
+        if user_input is not None:
+            self.options.update(user_input)
+            return self.async_create_entry(
+                title=self.config_entry.data.get(CONF_USERNAME), data=self.options
+            )
+
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_SCAN_INTERVAL,
+                        default=self.options.get(CONF_SCAN_INTERVAL, DEFAULT_REFRESH),
+                    ): vol.All(
+                        vol.Coerce(int), vol.Range(min=MIN_REFRESH, max=MAX_REFRESH)
+                    )
+                }
+            ),
+        )
