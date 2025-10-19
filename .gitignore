@@ -11,6 +11,7 @@ __pycache__
 coverage.xml
 
 # Home Assistant configuration
+.ha_run.lock
 .cloud
 .HA_VERSION
 .storage

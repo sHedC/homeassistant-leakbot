@@ -2,7 +2,7 @@
     "name": "Leakbot",
     "filename": "leakbot.zip",
     "hide_default_branch": true,
-    "homeassistant": "2025.4.0",
+    "homeassistant": "2025.10.0",
     "render_readme": true,
     "zip_release": true
 }

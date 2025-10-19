@@ -2,8 +2,14 @@
 # default_config:
 
 # Add needed setup for the integraiton,
+assist_pipeline:
+cloud:
 config:
+conversation:
+homeassistant_alerts:
 logbook:
+stream:
+webhook:
 
 # comment out history to test if missing, water events disabled.
 history:
