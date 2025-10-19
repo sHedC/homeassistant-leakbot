@@ -52,7 +52,8 @@
                     "editor.defaultFormatter": "charliermarsh.ruff"
                 },
                 "extensions.ignoreRecommendations": true,
-                "files.trimTrailingWhitespace": true
+                "files.trimTrailingWhitespace": true,
+                "remote.autoForwardPorts": false
             }
         }
     },
