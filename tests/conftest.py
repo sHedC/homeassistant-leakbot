@@ -20,7 +20,7 @@ from custom_components.leakbot.api import (
     API_TENANT_MYVIEW,
     API_DEVICE_MYMSG,
     API_DEVICE_WATERUSAGE,
-    API_DEVICE_MYSIMPLEMSG
+    API_DEVICE_MYSIMPLEMSG,
 )
 
 VALID_LOGIN = {
@@ -44,8 +44,9 @@ def auto_enable_custom_integration(
 @pytest.fixture(name="skip_notifications", autouse=True)
 def skip_notifications_fixture():
     """Skip notification calls."""
-    with patch("homeassistant.components.persistent_notification.async_create"), patch(
-        "homeassistant.components.persistent_notification.async_dismiss"
+    with (
+        patch("homeassistant.components.persistent_notification.async_create"),
+        patch("homeassistant.components.persistent_notification.async_dismiss"),
     ):
         yield
 
@@ -73,9 +74,7 @@ def api_leakbot_rul():
 
 
 @pytest.fixture
-def aiohttp_client(
-    event_loop, aiohttp_client, socket_enabled
-) -> ClientSessionGenerator:  # pylint: disable=unused-argument, redefined-outer-name
+def aiohttp_client(aiohttp_client, socket_enabled) -> ClientSessionGenerator:  # pylint: disable=unused-argument, redefined-outer-name
     """Return aiohttp_client and allow opening sockets."""
     return aiohttp_client
 
@@ -250,7 +249,11 @@ class LeakbotAPIMock:
         lctoken = request.cookies.get("lctoken")
         starting_date = data["starting_date"]
 
-        if self._token == token and self._token == lctoken and starting_date is not None:
+        if (
+            self._token == token
+            and self._token == lctoken
+            and starting_date is not None
+        ):
             device_id = data["LbDevice_ID"]
             response_text = load_fixture(f"device_mysimpleeventlist_{device_id}.json")
         else:
