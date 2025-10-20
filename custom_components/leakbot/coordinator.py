@@ -193,12 +193,17 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                 device["info"] = await self.client.get_device_data(device_id)
 
                 messages = await self.client.get_device_messages(device_id)
-                device["last_update"] = messages["list"]["record"][0]
 
-                # Water Usage
-                device["water_usage"] = await self.client.get_device_water_usage(
-                    device_id, 0
-                )
+                # Confirm we have data before attempting to load.
+                if "record" in messages["list"]:
+                    device["last_update"] = messages["list"]["record"][0]
+
+                    # Water Usage
+                    device["water_usage"] = await self.client.get_device_water_usage(
+                        device_id, 0
+                    )
+                else:
+                    device["device_status"] = "no_data"
 
                 # Update Events
                 await self._async_update_events(device_id, device)

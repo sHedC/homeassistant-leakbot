@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "description": "If you need help with the configuration have a look here: https://github.com/sHedC/homeassistant-leakbot",
+                "description": "If you need help with the configuration have a look here, it takes 48 hours for the leakbot to start giving data: https://github.com/sHedC/homeassistant-leakbot",
                 "data": {
                     "username": "Username",
                     "password": "Password"
@@ -41,6 +41,7 @@
             "device_status": {
                 "name": "Leak Status",
                 "state": {
+                    "no_data": "No Data Yet",
                     "leak_inactive": "No Leak",
                     "high_usage": "High Usage",
                     "low_battery": "Low Battery"
