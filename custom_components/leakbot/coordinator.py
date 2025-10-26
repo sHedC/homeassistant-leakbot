@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
+
 from datetime import timedelta, datetime, UTC
 
 from ical.calendar import Calendar
 from ical.event import Event
-from ical.store import EventStore, EventStoreError
+from ical.store import EventStore
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -47,6 +49,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
         self.client = client
         self._entry = entry
         self._connected = False
+        self._calendar_lock = asyncio.Lock()
 
         super().__init__(
             hass=hass,
@@ -134,23 +137,32 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                     ).replace(tzinfo=UTC)
                 )
 
-            # Try to update the event, if failes then add it.
-            # Seems there is no open method to check if the event exists
-            # and not writing my own.
-            try:
-                item_event = Event(
-                    start=cal_start_date,
-                    end=cal_end_date,
-                    summary=event["derived_event_code"],
-                    description=event["interaction_flag"],
-                    uid=event["derived_event_id"],
-                )
-                calendar_events.edit(
-                    uid=event["derived_event_id"],
-                    item=item_event,
-                )
-            except EventStoreError:
-                calendar_events.add(item_event)
+            # Create Item Event to add or update.
+            item_event = Event(
+                start=cal_start_date,
+                end=cal_end_date,
+                summary=event["derived_event_code"],
+                description=event["interaction_flag"],
+                uid=event["derived_event_id"],
+            )
+
+            # If the entry exists then update.
+            entry_found = False
+            for existing_event in device_calendar.events:
+                if existing_event.uid == item_event.uid:
+                    entry_found = True
+
+            if entry_found:
+
+                def apply_edit() -> None:
+                    calendar_events.edit(
+                        uid=event["derived_event_id"],
+                        item=item_event,
+                    )
+
+                await self.hass.async_add_executor_job(apply_edit)
+            else:
+                await self.hass.async_add_executor_job(calendar_events.add, item_event)
 
         # Initiate/ Update the Calendar Store
         device["calendar"] = device_calendar
@@ -206,7 +218,8 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                     device["device_status"] = "no_data"
 
                 # Update Events
-                await self._async_update_events(device_id, device)
+                async with self._calendar_lock:
+                    await self._async_update_events(device_id, device)
 
             return result_data
         except LeakbotApiClientError as exception:
