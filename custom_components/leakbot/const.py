@@ -6,7 +6,7 @@ LOGGER: Logger = getLogger(__package__)
 
 NAME = "Leakbot"
 DOMAIN = "leakbot"
-VERSION = "1.1.2-b0"
+VERSION = "1.1.2"
 ATTRIBUTION = "Data provided by https://leakbot.io"
 
 DEFAULT_REFRESH = 30
