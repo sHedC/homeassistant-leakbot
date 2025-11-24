@@ -1,7 +1,7 @@
 colorlog==6.10.1
 homeassistant==2025.10.2
 pip>=21.3.1
-numpy==2.3.4
+numpy==2.3.5
 bumpver>=2024.1130
 ruff==0.14.4
 chardet==5.2.0
