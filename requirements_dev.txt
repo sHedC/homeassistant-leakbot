@@ -3,5 +3,5 @@ bumpver==2025.1131
 colorlog==6.10.1
 ruff==0.14.6
 chardet==5.2.0
-ical==11.1.0
+ical==12.1.0
 pytest-homeassistant-custom-component==0.13.289
