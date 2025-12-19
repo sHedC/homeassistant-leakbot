@@ -4,4 +4,5 @@ colorlog==6.10.1
 ruff==0.14.8
 chardet==5.2.0
 ical==12.1.0
+pycares>=4.9.0,<5 # Fix for missing ares_query_a_result, see aiodns 3.6.1
 pytest-homeassistant-custom-component==0.13.289
