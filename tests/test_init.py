@@ -51,9 +51,9 @@ async def test_setup_unload_and_reload_entry(
         assert await async_setup_entry(hass, entry)
         await hass.async_block_till_done()
 
-        assert (
-            len(hass.config_entries.flow.async_progress()) == 0
-        ), "Flow is in Progress it should not be."
+        assert len(hass.config_entries.flow.async_progress()) == 0, (
+            "Flow is in Progress it should not be."
+        )
 
         assert DOMAIN in hass.data and entry.entry_id in hass.data[DOMAIN]
         assert isinstance(
@@ -85,13 +85,13 @@ async def test_unload_entry(
         "custom_components.leakbot.async_get_clientsession",
         return_value=session,
     ):
-        assert (
-            await hass.config_entries.async_setup(entry.entry_id) is True
-        ), "Component did not setup correctly."
+        assert await hass.config_entries.async_setup(entry.entry_id) is True, (
+            "Component did not setup correctly."
+        )
         await hass.async_block_till_done()
 
         # Perform and Check Unload Config
-        assert (
-            await hass.config_entries.async_unload(entry.entry_id) is True
-        ), "Component Config Unload Failed."
+        assert await hass.config_entries.async_unload(entry.entry_id) is True, (
+            "Component Config Unload Failed."
+        )
         assert entry.state == ConfigEntryState.NOT_LOADED

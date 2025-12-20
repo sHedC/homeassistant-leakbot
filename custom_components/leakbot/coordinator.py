@@ -54,6 +54,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
         super().__init__(
             hass=hass,
             logger=LOGGER,
+            config_entry=entry,
             name=DOMAIN,
             update_interval=timedelta(minutes=scan_interval),
         )

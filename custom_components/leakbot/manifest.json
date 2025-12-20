@@ -10,7 +10,7 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/sHedC/leakbot/issues",
   "requirements": [
-    "ical==11.0.0"
+    "ical>=12.1.2"
   ],
   "version": "1.1.2"
 }
