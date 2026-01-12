@@ -5,4 +5,4 @@ ruff==0.14.10
 chardet==5.2.0
 ical==12.1.2
 pycares>=4.9.0,<6 # Fix for missing ares_query_a_result, see aiodns 3.6.1
-pytest-homeassistant-custom-component==0.13.301
+pytest-homeassistant-custom-component==0.13.305
