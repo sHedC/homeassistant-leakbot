@@ -1,7 +1,7 @@
 pip>=21.3.1
 bumpver==2025.1131
 colorlog==6.10.1
-ruff==0.14.13
+ruff==0.14.14
 chardet==5.2.0
 ical==12.1.2
 pycares>=4.9.0,<6 # Fix for missing ares_query_a_result, see aiodns 3.6.1
