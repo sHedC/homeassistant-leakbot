@@ -6,9 +6,9 @@
     "@sHedC"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/sHedC/leakbot",
+  "documentation": "https://github.com/sHedC/homeassistant-leakbot",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/sHedC/leakbot/issues",
+  "issue_tracker": "https://github.com/sHedC/homeassistant-leakbot/issues",
   "requirements": [
     "ical>=12.1.2"
   ],
