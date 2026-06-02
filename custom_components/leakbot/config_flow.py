@@ -134,10 +134,10 @@ class LeakbotFlowHandler(ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(
-        config_entry: ConfigEntry,
+        config_entry: ConfigEntry,  # pylint: disable=unused-argument
     ) -> OptionsFlow:
         """Return the option flow handler."""
-        return LeakbotOptionsFlowHandler(config_entry)
+        return LeakbotOptionsFlowHandler()
 
     async def _test_credentials(self, username: str, password: str) -> str:
         """Validate credentials."""
@@ -166,11 +166,6 @@ class LeakbotFlowHandler(ConfigFlow, domain=DOMAIN):
 class LeakbotOptionsFlowHandler(OptionsFlow):
     """Config flow options for Leakbot."""
 
-    def __init__(self, config_entry: ConfigEntry) -> None:
-        """Initialize Leakbot options flow."""
-        self.config_entry = config_entry
-        self.options = dict(config_entry.options)
-
     async def async_step_init(
         self,
         user_input: dict[str, any] | None = None,  # pylint: disable=unused-argument
@@ -183,6 +178,7 @@ class LeakbotOptionsFlowHandler(OptionsFlow):
         user_input: dict | None = None,
     ) -> FlowResult:
         """Manage the Leakbot options."""
+        self.options = dict(self.config_entry.options)
         if user_input is not None:
             self.options.update(user_input)
             return self.async_create_entry(
