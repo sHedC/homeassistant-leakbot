@@ -27,3 +27,4 @@ scripts.yaml
 secrets.yaml
 
 .devcontainer.json
+.devcontainer-lock.json

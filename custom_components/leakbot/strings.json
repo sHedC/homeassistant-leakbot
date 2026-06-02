@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "description": "If you need help with the configuration have a look here: https://github.com/sHedC/homeassistant-leakbot",
+                "description": "If you need help with the configuration have a look here, it takes 48 hours for the leakbot to start giving data: https%3A%2F%2Fgithub.com%2FsHedC%2Fhomeassistant-leakbot",
                 "data": {
                     "username": "Username",
                     "password": "Password"
