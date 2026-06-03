@@ -271,5 +271,6 @@ class LeakbotWaterHistorySensor(LeakbotEntity, SensorEntity):
                 source="recorder",
                 statistic_id=statistic_id,
                 unit_of_measurement=self.unit_of_measurement,
+                unit_class=None,
             )
             async_import_statistics(self.hass, new_stats_meta, new_stats)
