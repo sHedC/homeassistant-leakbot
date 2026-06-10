@@ -13,7 +13,6 @@ from homeassistant.const import Platform
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.leakbot import (
-    async_setup_entry,
     async_reload_entry,
     LeakbotDataUpdateCoordinator,
 )
