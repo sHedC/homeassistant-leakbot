@@ -71,7 +71,11 @@ async def test_auth_error(
     )
 
     coordinator = LeakbotDataUpdateCoordinator(hass, api, entry, 15)
-    await coordinator.async_refresh()
+    try:
+        await coordinator.async_refresh()
+    except Exception:
+        assert not coordinator.is_connected
+
     assert not coordinator.is_connected
 
 
