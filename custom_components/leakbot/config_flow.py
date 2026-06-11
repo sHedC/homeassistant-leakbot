@@ -30,6 +30,11 @@ class LeakbotFlowHandler(ConfigFlow, domain=DOMAIN):
     VERSION = 1
     CONNECTION_CLASS = CONN_CLASS_CLOUD_POLL
 
+    def __init__(self) -> None:
+        """Initialize the Masterhterm Flow."""
+        self.reauth_entry: ConfigEntry | None = None
+        self._errors = {}
+
     async def async_step_user(
         self,
         user_input: dict | None = None,
