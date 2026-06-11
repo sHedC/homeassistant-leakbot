@@ -110,6 +110,7 @@ class LeakbotFlowHandler(ConfigFlow, domain=DOMAIN):
                 await self.hass.config_entries.async_reload(self.reauth_entry.entry_id)
                 return self.async_abort(reason="reauth_successful")
             else:
+                self.reauth_entry = None
                 _errors = result
 
         return self.async_show_form(

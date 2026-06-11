@@ -73,7 +73,6 @@ async def test_auth_error(
     coordinator = LeakbotDataUpdateCoordinator(hass, api, entry, 15)
     await coordinator.async_refresh()
     assert not coordinator.is_connected
-    pass
 
 
 async def test_token_error(
