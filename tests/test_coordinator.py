@@ -64,13 +64,19 @@ async def test_auth_error(
     """Test the Data Update works."""
     session = await aiohttp_client(leakbot_api)
     entry = MockConfigEntry(domain=DOMAIN, data=VALID_LOGIN)
+
+    # Perform Valid Login and refresh before failing.
     api = LeakbotApiClient(
         VALID_LOGIN["username"],
-        "invalidpass",
+        VALID_LOGIN["password"],
         session,
     )
-
     coordinator = LeakbotDataUpdateCoordinator(hass, api, entry, 15)
+    await coordinator.async_refresh()
+
+    # Cause Failure on the API connection to trigger re-auth.
+    api._password = "invalidpass"
+    coordinator._connected = False
     await coordinator.async_refresh()
     assert not coordinator.is_connected
 
