@@ -56,9 +56,12 @@ async def test_token_error(
     assert result["token"]
     assert result["tenant_id"]
 
+    old_token = api._token
     api._token = "INVALID"
     with pytest.raises(LeakbotApiClientTokenError):
         await api.get_device_list()
+
+    api._token = old_token
 
 
 async def test_device_list(
@@ -178,7 +181,9 @@ async def test_device_simpleeventlist(
 
         if alert_msg:
             starting_date = "2025-04-11 08:00:00"
-            event_data = await api.get_device_simple_event_list(device["id"], starting_date)
+            event_data = await api.get_device_simple_event_list(
+                device["id"], starting_date
+            )
             assert event_data
 
 
