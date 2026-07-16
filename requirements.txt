@@ -1,5 +1,5 @@
 colorlog==6.10.1
-pycares>=4.9.0,<5 # Fix for missing ares_query_a_result, see aiodns 3.6.1
+pycares>=5.0.0,<6 # Fix for missing ares_query_a_result, see aiodns 4.0.4
 homeassistant==2025.12.4
 pip>=26.1.2
 numpy==2.4.6
