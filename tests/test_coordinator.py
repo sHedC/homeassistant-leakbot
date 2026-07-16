@@ -1,10 +1,14 @@
 """Test the Leakbot Data Update coordinator."""
 
+import pytest
+
 from aiohttp.web import Application
 
 from ical.calendar import Calendar
 
 from homeassistant.core import HomeAssistant
+
+from homeassistant import config_entries, data_entry_flow
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -62,23 +66,25 @@ async def test_auth_error(
     aiohttp_client: ClientSessionGenerator,
 ):
     """Test the Data Update works."""
-    session = await aiohttp_client(leakbot_api)
+    # This test requires teh config entry to be set up
+    # properly to avoid Assert Exception in Teardown
     entry = MockConfigEntry(domain=DOMAIN, data=VALID_LOGIN)
+    entry.add_to_hass(hass)
+
+    session = await aiohttp_client(leakbot_api)
 
     # Perform Valid Login and refresh before failing.
     api = LeakbotApiClient(
         VALID_LOGIN["username"],
-        VALID_LOGIN["password"],
+        "invalidpassword",
         session,
     )
     coordinator = LeakbotDataUpdateCoordinator(hass, api, entry, 15)
     await coordinator.async_refresh()
-
-    # Cause Failure on the API connection to trigger re-auth.
-    api._password = "invalidpass"
-    coordinator._connected = False
-    await coordinator.async_refresh()
     assert not coordinator.is_connected
+
+    # Lef the flow finish.
+    await hass.async_block_till_done()
 
 
 async def test_token_error(
@@ -105,5 +111,6 @@ async def test_token_error(
     # Token Invalid but refreshes.
     api._token = "INVALID"
     await coordinator.async_refresh()
+    await hass.async_block_till_done()
     assert coordinator.data
     assert api._token != "INVALID"
