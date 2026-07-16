@@ -10,7 +10,7 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/sHedC/homeassistant-leakbot/issues",
   "requirements": [
-    "ical>=12.1.2"
+    "ical>=13.2.5"
   ],
   "version": "1.1.4"
 }
