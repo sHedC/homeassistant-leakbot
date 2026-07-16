@@ -178,7 +178,9 @@ async def test_device_simpleeventlist(
 
         if alert_msg:
             starting_date = "2025-04-11 08:00:00"
-            event_data = await api.get_device_simple_event_list(device["id"], starting_date)
+            event_data = await api.get_device_simple_event_list(
+                device["id"], starting_date
+            )
             assert event_data
 
 

@@ -1,8 +1,8 @@
 pip>=26.1.2
-bumpver==2025.1131
+bumpver==2026.1132
 colorlog==6.10.1
 ruff==0.15.17
 chardet==7.4.3
 ical==13.2.5
 pycares>=4.9.0,<6 # Fix for missing ares_query_a_result, see aiodns 3.6.1
-pytest-homeassistant-custom-component==0.13.314
+pytest-homeassistant-custom-component==0.13.339
