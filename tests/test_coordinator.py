@@ -1,14 +1,10 @@
 """Test the Leakbot Data Update coordinator."""
 
-import pytest
-
 from aiohttp.web import Application
 
 from ical.calendar import Calendar
 
 from homeassistant.core import HomeAssistant
-
-from homeassistant import config_entries, data_entry_flow
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
