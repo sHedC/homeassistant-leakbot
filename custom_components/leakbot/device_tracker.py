@@ -1,6 +1,9 @@
 """Leakbot Device Tracker."""
 
-from homeassistant.components.device_tracker import ScannerEntity, SourceType
+from typing import Any
+
+from homeassistant.components.device_tracker.entity import ScannerEntity
+from homeassistant.components.device_tracker.const import SourceType
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
@@ -22,7 +25,7 @@ async def async_setup_entry(
     coordinator: LeakbotDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     entities: list[LeakbotEntity] = []
-    devices: dict[str, any] = coordinator.data.get("devices", {})
+    devices: dict[str, Any] = coordinator.data.get("devices", {})
     for _, device in devices.items():
         entities.append(LeadbotDevice(coordinator, device))
 
@@ -36,16 +39,16 @@ class LeadbotDevice(LeakbotEntity, ScannerEntity):
     def __init__(
         self,
         coordinator: LeakbotDataUpdateCoordinator,
-        device: dict[str, any],
+        device: dict[str, Any],
     ):
         """Initialise Leakbot Device Entity."""
         super().__init__(Platform.DEVICE_TRACKER, coordinator, device["id"])
         self._attr_icon = "mdi:water-check-outline"
 
     @property
-    def source_type(self) -> SourceType | str:
+    def source_type(self) -> SourceType:
         """Return the source type, eg gps or router, of the device."""
-        return "detector"
+        return SourceType.BLUETOOTH
 
     @property
     def is_connected(self) -> bool:

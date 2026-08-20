@@ -6,7 +6,8 @@ from .entity import LeakbotEntity
 from .coordinator import LeakbotDataUpdateCoordinator
 from .const import DOMAIN
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, time
+from typing import Any
 
 from ical.calendar import Calendar
 from ical.event import Event
@@ -29,7 +30,7 @@ async def async_setup_entry(
     """Set up the Calendar Sensors."""
     coordinator: LeakbotDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
     entities: list[LeakbotEntity] = []
-    devices: dict[str, any] = coordinator.data.get("devices", {})
+    devices: dict[str, Any] = coordinator.data.get("devices", {})
     for _, device in devices.items():
         entities.append(
             LeakbotEventsCalendar(
@@ -57,7 +58,7 @@ class LeakbotEventsCalendar(LeakbotEntity, CalendarEntity):
     def __init__(
         self,
         coordinator: LeakbotDataUpdateCoordinator,
-        device: dict[str, any],
+        device: dict[str, Any],
         entity_description: CalendarEntityDescription,
     ) -> None:
         """Initialize the calendar."""
@@ -77,12 +78,18 @@ class LeakbotEventsCalendar(LeakbotEntity, CalendarEntity):
         self, hass: HomeAssistant, start_date: datetime, end_date: datetime
     ) -> list[CalendarEvent]:
         """Get Calendar Events within a date range."""
-        dev_calendar: Calendar = self.get_device_data.get("calendar")
+        dev_calendar: Calendar = self.get_device_data.get("calendar", Calendar())
         events = dev_calendar.timeline_tz(start_date.tzinfo).overlapping(
             start_date,
             end_date,
         )
         return [_get_calendar_event(event) for event in events]
+
+
+def _to_datetime(d: datetime | date) -> datetime:
+    if isinstance(d, datetime):
+        return d
+    return datetime.combine(d, time.min)
 
 
 def _get_calendar_event(event: Event) -> CalendarEvent:
@@ -97,11 +104,11 @@ def _get_calendar_event(event: Event) -> CalendarEvent:
     else:
         start = event.start
         end = event.end
-        if (end - start) < timedelta(days=0):
+        if (_to_datetime(end) - _to_datetime(start)) < timedelta(days=0):
             end = start + timedelta(days=1)
 
     return CalendarEvent(
-        summary=event.summary,
+        summary=str(event.summary),
         start=start,
         end=end,
         description=event.description,

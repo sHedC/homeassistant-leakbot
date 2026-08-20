@@ -11,6 +11,7 @@ from .const import DOMAIN
 from decimal import Decimal
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
+from typing import Any
 
 from homeassistant.components.recorder.models import (
     StatisticData,
@@ -19,7 +20,6 @@ from homeassistant.components.recorder.models import (
 )
 from homeassistant.components.recorder.statistics import (
     async_import_statistics,
-    get_instance,
     get_last_statistics,
 )
 from homeassistant.components.sensor import (
@@ -32,18 +32,19 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.recorder import get_instance
 from homeassistant.helpers.typing import StateType
 from homeassistant.util import slugify, dt
 
 from .const import LOGGER
 
 
-@dataclass
+@dataclass(frozen=True)
 class LeakbotSensorEntityDescription(SensorEntityDescription):
     """Leakbot Sensor Entity Description."""
 
     data_type: str = "str"
-    lookup_keys: str = None
+    lookup_keys: str | None = None
 
 
 ENTITY_DESCRIPTIONS = (
@@ -71,7 +72,6 @@ ENTITY_DESCRIPTIONS = (
         device_class=SensorDeviceClass.DURATION,
         native_unit_of_measurement=UnitOfTime.DAYS,
         suggested_unit_of_measurement=UnitOfTime.DAYS,
-        unit_of_measurement=UnitOfTime.DAYS,
     ),
     LeakbotSensorEntityDescription(
         lookup_keys="last_update",
@@ -90,7 +90,7 @@ async def async_setup_entry(
     """Set up the sensor platform."""
     coordinator: LeakbotDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
     entities: list[LeakbotEntity] = []
-    devices: dict[str, any] = coordinator.data.get("devices", {})
+    devices: dict[str, Any] = coordinator.data.get("devices", {})
     for _, device in devices.items():
         for entity_description in ENTITY_DESCRIPTIONS:
             entities.append(LeakbotSensor(coordinator, device, entity_description))
@@ -127,7 +127,7 @@ class LeakbotSensor(LeakbotEntity, SensorEntity):
     def __init__(
         self,
         coordinator: LeakbotDataUpdateCoordinator,
-        device: dict[str, any],
+        device: dict[str, Any],
         entity_description: LeakbotSensorEntityDescription,
     ) -> None:
         """Initialize the sensor class."""
@@ -163,7 +163,7 @@ class LeakbotWaterHistorySensor(LeakbotEntity, SensorEntity):
     def __init__(
         self,
         coordinator: LeakbotDataUpdateCoordinator,
-        device: dict[str, any],
+        device: dict[str, Any],
         entity_description: LeakbotSensorEntityDescription,
     ) -> None:
         """Initialize the water usage sensor class."""
@@ -174,7 +174,7 @@ class LeakbotWaterHistorySensor(LeakbotEntity, SensorEntity):
         self._attr_state = None
 
     @property
-    def state(self) -> StateType | date | datetime | Decimal:
+    def native_value(self) -> StateType | date | datetime | Decimal:
         """Return the native value of the sensor."""
         # Returns none as there is no current state for this sensor.
         # This is a historical sensor.
@@ -267,7 +267,7 @@ class LeakbotWaterHistorySensor(LeakbotEntity, SensorEntity):
             new_stats_meta = StatisticMetaData(
                 mean_type=StatisticMeanType.NONE,
                 has_sum=True,
-                name=self.name,
+                name=str(self.name),
                 source="recorder",
                 statistic_id=statistic_id,
                 unit_of_measurement=self.unit_of_measurement,

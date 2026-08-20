@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 
 from datetime import timedelta, datetime, UTC
+from typing import Any
 
 from ical.calendar import Calendar
 from ical.event import Event
@@ -101,12 +102,12 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(exception) from exception
 
     async def _async_update_events(
-        self, device_id: str, device: dict[str, any]
+        self, device_id: str, device: dict[str, Any]
     ) -> None:
         """Update Leakbot Events."""
         # Get the date to start retrieving events from,
         # this should be based on the last calendar event
-        # date or start of the company in 2016.
+        # date or start of the compAny in 2016.
         device_calendar: Calendar = device.get("calendar", Calendar())
         if device_calendar.events:
             start_date = device_calendar.events[0].start
@@ -122,7 +123,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
             device_id, starting_date
         )
 
-        # Check if we have any events.
+        # Check if we have Any events.
         for event in events["events"]:
             cal_start_date = dt.as_local(
                 datetime.strptime(
@@ -190,8 +191,9 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                 devices = await self.client.get_device_list()
                 tenant = await self.client.get_tenant_myview()
 
-                device_data: dict[str, any] = {}
-                for device in devices.get("IDs"):
+                device_data: dict[str, Any] = {}
+                ids = devices["IDs"]
+                for device in ids:
                     device_data[device["id"]] = device
 
                 result_data = {

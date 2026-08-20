@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import json
 
-from aiohttp import ClientSession, ClientError
+from aiohttp import ClientSession, ClientError, ClientResponse
 from json.decoder import JSONDecodeError
+from typing import Any
 from urllib.parse import urljoin
 
 from .const import LOGGER
@@ -60,8 +61,9 @@ class LeakbotApiClient:
         self._connected = False
         self._token = "randomtoken"
 
-    async def _post(self, url: str, params: dict[str, any]) -> dict[str, any]:
+    async def _post(self, url: str, params: dict[str, Any]) -> dict[str, Any]:
         """Perform post to the api."""
+        response: ClientResponse | None = None
         try:
             response = await self._session.post(
                 url,
@@ -81,15 +83,15 @@ class LeakbotApiClient:
             response_json = await response.json()
         except ClientError as ex:
             LOGGER.error("Client Error: %s", ex)
+            status = response.status if response is not None else None
             raise LeakbotApiClientCommunicationError(
-                response.status, "Error fetching information"
+                status, "Error fetching information"
             ) from ex
         except JSONDecodeError as ex:
-            response_text = await response.text()
-            LOGGER.error("JSON Decode Error: %s:%s", response.status, response_text)
-            raise LeakbotApiClientCommunicationError(
-                response.status, response_text
-            ) from ex
+            response_text = await response.text() if response is not None else ""
+            status = response.status if response is not None else None
+            LOGGER.error("JSON Decode Error: %s:%s", status, response_text)
+            raise LeakbotApiClientCommunicationError(status, response_text) from ex
 
         if "error" in response_json:
             if response_json["error"] == 52:
@@ -103,7 +105,7 @@ class LeakbotApiClient:
         """Is the API Connected."""
         return self._connected
 
-    async def login(self) -> dict[str, any]:
+    async def login(self) -> dict[str, Any]:
         """Attempt to login to the api server."""
         params = {
             "username": self._username,
@@ -121,42 +123,42 @@ class LeakbotApiClient:
         self._connected = True
         return result_json
 
-    async def get_device_list(self) -> dict[str, any]:
+    async def get_device_list(self) -> dict[str, Any]:
         """Retrieve the list of devices connected to the account."""
         params = {"token": self._token}
         result_json = await self._post(urljoin(API_URL, API_DEVICE_LIST), params)
 
         return result_json
 
-    async def get_account_myread(self) -> dict[str, any]:
+    async def get_account_myread(self) -> dict[str, Any]:
         """Retrieve the Account Main Details."""
         params = {"token": self._token}
         result_json = await self._post(urljoin(API_URL, API_ACCOUNT_MYREAD), params)
 
         return result_json
 
-    async def get_address_myread(self) -> dict[str, any]:
+    async def get_address_myread(self) -> dict[str, Any]:
         """Retrieve the Account Address Details."""
         params = {"token": self._token}
         result_json = await self._post(urljoin(API_URL, API_ADDRESS_MYREAD), params)
 
         return result_json
 
-    async def get_tenant_myview(self) -> dict[str, any]:
+    async def get_tenant_myview(self) -> dict[str, Any]:
         """Retrieve the Tenant Details."""
         params = {"token": self._token}
         result_json = await self._post(urljoin(API_URL, API_TENANT_MYVIEW), params)
 
         return result_json
 
-    async def get_device_data(self, device_id: str) -> dict[str, any]:
+    async def get_device_data(self, device_id: str) -> dict[str, Any]:
         """Retrieve the Device Data."""
         params = {"token": self._token, "LbDevice_ID": device_id}
         result_json = await self._post(urljoin(API_URL, API_DEVICE_MYVIEW), params)
 
         return result_json
 
-    async def get_device_messages(self, device_id: str) -> dict[str, any]:
+    async def get_device_messages(self, device_id: str) -> dict[str, Any]:
         """Retrieve the Device Messages."""
         params = {"token": self._token, "LbDevice_ID": device_id, "fetch_size": 1}
         result_json = await self._post(urljoin(API_URL, API_DEVICE_MYMSG), params)
@@ -165,7 +167,7 @@ class LeakbotApiClient:
 
     async def get_device_water_usage(
         self, device_id: str, timezoneoffest: int
-    ) -> dict[str, any]:
+    ) -> dict[str, Any]:
         """Retrieve the Device Water Usage."""
         params = {
             "token": self._token,
@@ -178,7 +180,7 @@ class LeakbotApiClient:
 
     async def get_device_simple_event_list(
         self, device_id: str, starting_date: str
-    ) -> dict[str, any]:
+    ) -> dict[str, Any]:
         """Retrieve the Device Simple Event List."""
         params = {
             "token": self._token,
@@ -189,6 +191,6 @@ class LeakbotApiClient:
 
         return result_json
 
-    async def async_get_data(self) -> any:
+    async def async_get_data(self) -> Any:
         """Get data from the API."""
         return {}

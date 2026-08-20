@@ -2,16 +2,18 @@
 
 from __future__ import annotations
 
+from typing import Any, override
+
 import voluptuous as vol
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
+    ConfigFlowResult,
     OptionsFlow,
     CONN_CLASS_CLOUD_POLL,
 )
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, CONF_SCAN_INTERVAL
 from homeassistant.core import callback
-from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
@@ -32,15 +34,15 @@ class LeakbotFlowHandler(ConfigFlow, domain=DOMAIN):
 
     def __init__(self) -> None:
         """Initialize the Masterhterm Flow."""
-        self.reauth_entry: ConfigEntry | None = None
         self._errors = {}
 
+    @override
     async def async_step_user(
         self,
         user_input: dict | None = None,
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Handle a flow initialized by the user."""
-        _errors = {}
+        _errors: dict[str, str] = {}
         if user_input is not None:
             result = await self._test_credentials(
                 username=user_input[CONF_USERNAME],
@@ -89,14 +91,15 @@ class LeakbotFlowHandler(ConfigFlow, domain=DOMAIN):
     async def async_step_reauth_confirm(
         self,
         user_input: dict | None = None,  # pylint: disable=unused-argument
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Handle reauth confirmation."""
-        assert self.reauth_entry is not None
+        reauth_entry = self._get_reauth_entry()
+        assert reauth_entry is not None
 
         # if there is no user input then re-direct the user step.
         _errors = {}
         if user_input is not None:
-            entry_data = self.reauth_entry.data
+            entry_data = reauth_entry.data
 
             result = await self._test_credentials(
                 username=entry_data[CONF_USERNAME],
@@ -105,12 +108,12 @@ class LeakbotFlowHandler(ConfigFlow, domain=DOMAIN):
 
             if "token" in result:
                 self.hass.config_entries.async_update_entry(
-                    self.reauth_entry, data={**entry_data, **user_input}
+                    reauth_entry, data={**entry_data, **user_input}
                 )
-                await self.hass.config_entries.async_reload(self.reauth_entry.entry_id)
+                await self.hass.config_entries.async_reload(reauth_entry.entry_id)
                 return self.async_abort(reason="reauth_successful")
             else:
-                self.reauth_entry = None
+                reauth_entry = None
                 _errors = result
 
         return self.async_show_form(
@@ -130,11 +133,8 @@ class LeakbotFlowHandler(ConfigFlow, domain=DOMAIN):
     async def async_step_reauth(
         self,
         user_input: dict | None = None,  # pylint: disable=unused-argument
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Handle configuration by re-auth."""
-        self.reauth_entry = self.hass.config_entries.async_get_entry(
-            self.context["entry_id"]
-        )
         return await self.async_step_reauth_confirm()
 
     @staticmethod
@@ -145,7 +145,7 @@ class LeakbotFlowHandler(ConfigFlow, domain=DOMAIN):
         """Return the option flow handler."""
         return LeakbotOptionsFlowHandler()
 
-    async def _test_credentials(self, username: str, password: str) -> str:
+    async def _test_credentials(self, username: str, password: str) -> dict[str, str]:
         """Validate credentials."""
         client = LeakbotApiClient(
             username=username,
@@ -174,15 +174,15 @@ class LeakbotOptionsFlowHandler(OptionsFlow):
 
     async def async_step_init(
         self,
-        user_input: dict[str, any] | None = None,  # pylint: disable=unused-argument
-    ) -> FlowResult:
+        user_input: dict[str, Any] | None = None,  # pylint: disable=unused-argument
+    ) -> ConfigFlowResult:
         """Manage the options."""
         return await self.async_step_user()
 
     async def async_step_user(
         self,
         user_input: dict | None = None,
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """Manage the Leakbot options."""
         self.options = dict(self.config_entry.options)
         if user_input is not None:

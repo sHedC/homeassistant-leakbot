@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from homeassistant.helpers.entity import DeviceInfo
+from typing import Any
+
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 
@@ -41,7 +43,7 @@ class LeakbotEntity(CoordinatorEntity):
                 entity_ids.pop(entity_index)
 
     @property
-    def get_device_data(self) -> dict[str, any]:
+    def get_device_data(self) -> dict[str, Any]:
         """Get the device data."""
         data = self.coordinator.data["devices"][self._device_id]
         return data
@@ -55,5 +57,5 @@ class LeakbotEntity(CoordinatorEntity):
             manufacturer=NAME,
             model=self.get_device_data["device_type"],
             sw_version=self.get_device_data["fw_version"],
-            hw_version=self._leakbot_id
+            hw_version=self._leakbot_id,
         )

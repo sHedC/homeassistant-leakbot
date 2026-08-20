@@ -47,12 +47,21 @@ async def test_sensor_setup(
         await hass.async_block_till_done()
 
     # Check we called the Mock and we have a Sensor.
-    assert (
-        hass.states.async_entity_ids_count(Platform.SENSOR) > 0
-    ), "Sensors Failed to Create"
+    assert hass.states.async_entity_ids_count(Platform.SENSOR) > 0, (
+        "Sensors Failed to Create"
+    )
 
     state = hass.states.get("sensor.leakbot_5abcdef_device_status")
     assert state.state == "leak_inactive"
 
     state = hass.states.get("sensor.leakbot_5abcdef_messageTimestamp")
     assert state.state == "2025-04-11T02:16:26+00:00"
+
+
+async def test_missing_sensor(
+    hass: HomeAssistant,
+    leakbot_api: Application,
+    aiohttp_client: ClientSessionGenerator,
+):
+    """Test Sensors where data is missing."""
+    pass
