@@ -20,7 +20,6 @@ from .const import DOMAIN, DEFAULT_REFRESH
 from .coordinator import LeakbotDataUpdateCoordinator
 
 PLATFORMS: list[Platform] = [
-    Platform.DEVICE_TRACKER,
     Platform.SENSOR,
     Platform.CALENDAR,
 ]

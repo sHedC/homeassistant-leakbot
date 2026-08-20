@@ -23,10 +23,10 @@ from .conftest import ClientSessionGenerator, VALID_LOGIN
 
 @pytest.fixture(autouse=True)
 def override_entity():
-    """Override the ENTITIES to just have device tracker."""
+    """Override the ENTITIES to just have device sensors."""
     with patch(
         "custom_components.leakbot.PLATFORMS",
-        [Platform.DEVICE_TRACKER],
+        [Platform.SENSOR],
     ):
         yield
 
