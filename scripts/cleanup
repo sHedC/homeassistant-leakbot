@@ -8,5 +8,6 @@ rm -rf .storage
 rm -rf deps
 rm -rf blueprints
 rm -f .HA_VERSION
+rm -rf .cache
 rm -f home-assistant.log*
 rm -f home-assistant_v2.db
