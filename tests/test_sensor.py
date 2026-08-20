@@ -52,9 +52,11 @@ async def test_sensor_setup(
     )
 
     state = hass.states.get("sensor.leakbot_5abcdef_device_status")
+    assert state is not None
     assert state.state == "leak_inactive"
 
     state = hass.states.get("sensor.leakbot_5abcdef_messageTimestamp")
+    assert state is not None
     assert state.state == "2025-04-11T02:16:26+00:00"
 
 

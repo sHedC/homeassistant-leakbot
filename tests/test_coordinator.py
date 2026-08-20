@@ -1,6 +1,6 @@
 """Test the Leakbot Data Update coordinator."""
 
-from aiohttp.web import Application
+from aiohttp import ClientSession
 
 from ical.calendar import Calendar
 
@@ -12,36 +12,28 @@ from custom_components.leakbot.api import LeakbotApiClient
 from custom_components.leakbot.const import DOMAIN
 from custom_components.leakbot.coordinator import LeakbotDataUpdateCoordinator
 
-from .conftest import ClientSessionGenerator, VALID_LOGIN
+from .conftest import VALID_LOGIN
 
 
-async def test_coordinator_setup(hass: HomeAssistant):
+async def test_coordinator_setup(
+    hass: HomeAssistant,
+    leakbot_api_client: LeakbotApiClient,
+):
     """Test the Coordinator sets up."""
     entry = MockConfigEntry(domain=DOMAIN, data=VALID_LOGIN)
-    coordinator = LeakbotDataUpdateCoordinator(
-        hass, LeakbotApiClient("", "", None), entry, 15
-    )
+    coordinator = LeakbotDataUpdateCoordinator(hass, leakbot_api_client, entry, 15)
     assert coordinator
 
 
 async def test_coordinator_data(
     hass: HomeAssistant,
-    leakbot_api: Application,
-    aiohttp_client: ClientSessionGenerator,
+    leakbot_api_client: LeakbotApiClient,
 ):
     """Test the Data Update works."""
-    session = await aiohttp_client(leakbot_api)
     entry = MockConfigEntry(domain=DOMAIN, data=VALID_LOGIN)
+    assert leakbot_api_client.is_connected
 
-    api = LeakbotApiClient(
-        VALID_LOGIN["username"],
-        VALID_LOGIN["password"],
-        session,
-    )
-
-    assert api.is_connected
-
-    coordinator = LeakbotDataUpdateCoordinator(hass, api, entry, 15)
+    coordinator = LeakbotDataUpdateCoordinator(hass, leakbot_api_client, entry, 15)
     await coordinator.async_refresh()
 
     assert coordinator.is_connected
@@ -58,8 +50,7 @@ async def test_coordinator_data(
 
 async def test_auth_error(
     hass: HomeAssistant,
-    leakbot_api: Application,
-    aiohttp_client: ClientSessionGenerator,
+    leakbot_session: ClientSession,
 ):
     """Test the Data Update works."""
     # This test requires teh config entry to be set up
@@ -67,14 +58,7 @@ async def test_auth_error(
     entry = MockConfigEntry(domain=DOMAIN, data=VALID_LOGIN)
     entry.add_to_hass(hass)
 
-    session = await aiohttp_client(leakbot_api)
-
-    # Perform Valid Login and refresh before failing.
-    api = LeakbotApiClient(
-        VALID_LOGIN["username"],
-        "invalidpassword",
-        session,
-    )
+    api = LeakbotApiClient("wrong", "creds", leakbot_session)
     coordinator = LeakbotDataUpdateCoordinator(hass, api, entry, 15)
     await coordinator.async_refresh()
     assert not coordinator.is_connected
@@ -85,28 +69,24 @@ async def test_auth_error(
 
 async def test_token_error(
     hass: HomeAssistant,
-    leakbot_api: Application,
-    aiohttp_client: ClientSessionGenerator,
+    leakbot_api_client: LeakbotApiClient,
 ):
     """Test the Data Update works."""
-    session = await aiohttp_client(leakbot_api)
     entry = MockConfigEntry(domain=DOMAIN, data=VALID_LOGIN)
+    result = await leakbot_api_client.login()
 
-    api = LeakbotApiClient(
-        VALID_LOGIN["username"],
-        VALID_LOGIN["password"],
-        session,
-    )
+    assert leakbot_api_client.is_connected
+    assert result["token"]
+    assert result["tenant_id"]
 
-    assert api.is_connected
-
-    coordinator = LeakbotDataUpdateCoordinator(hass, api, entry, 15)
+    coordinator = LeakbotDataUpdateCoordinator(hass, leakbot_api_client, entry, 15)
     await coordinator.async_refresh()
     assert coordinator.data
 
     # Token Invalid but refreshes.
-    api._token = "INVALID"
+    leakbot_api_client._token = "INVALID"
+
     await coordinator.async_refresh()
     await hass.async_block_till_done()
     assert coordinator.data
-    assert api._token != "INVALID"
+    assert leakbot_api_client._token != "INVALID"

@@ -1,5 +1,6 @@
 """Test Configuration for the tests."""
 
+import aiohttp
 import os
 import pytest
 
@@ -21,6 +22,7 @@ from custom_components.leakbot.api import (
     API_DEVICE_MYMSG,
     API_DEVICE_WATERUSAGE,
     API_DEVICE_MYSIMPLEMSG,
+    LeakbotApiClient,
 )
 
 VALID_LOGIN = {
@@ -98,6 +100,31 @@ async def leakbot_api(hass: HomeAssistant) -> Application:
 
     async_setup_forwarded(app, True, [])
     return app
+
+
+@pytest.fixture
+async def leakbot_test_client(
+    leakbot_api, aiohttp_client: ClientSessionGenerator
+) -> TestClient:
+    """Spin up the local aiohttp test server for the leakbot API app."""
+    return await aiohttp_client(leakbot_api)
+
+
+@pytest.fixture
+async def leakbot_session(leakbot_test_client: TestClient):
+    """ClientSession scoped to the local test server's base URL."""
+    async with aiohttp.ClientSession(
+        base_url=leakbot_test_client.make_url("/")
+    ) as session:
+        yield session
+
+
+@pytest.fixture
+def leakbot_api_client(leakbot_session: aiohttp.ClientSession) -> LeakbotApiClient:
+    """LeakbotApiClient wired up to the local test server."""
+    return LeakbotApiClient(
+        VALID_LOGIN["username"], VALID_LOGIN["password"], leakbot_session
+    )
 
 
 class LeakbotAPIMock:

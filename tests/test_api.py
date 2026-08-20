@@ -2,7 +2,7 @@
 
 import pytest
 
-from aiohttp.web import Application
+from aiohttp import ClientSession
 
 from custom_components.leakbot.api import (
     LeakbotApiClient,
@@ -10,164 +10,112 @@ from custom_components.leakbot.api import (
     LeakbotApiClientTokenError,
 )
 
-from .conftest import ClientSessionGenerator, VALID_LOGIN
 
-
-async def test_setup(leakbot_api: Application, aiohttp_client: ClientSessionGenerator):
+async def test_setup(leakbot_api_client: LeakbotApiClient):
     """Test the API Setup."""
-    session = await aiohttp_client(leakbot_api)
-    api = LeakbotApiClient("none", "none", session)
-    assert api is not None
+    assert leakbot_api_client is not None
 
 
-async def test_login_fail(
-    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
-):
+async def test_login_fail(leakbot_session: ClientSession):
     """Test the API Login Failure."""
-    session = await aiohttp_client(leakbot_api)
-    api = LeakbotApiClient("none", "none", session)
-
+    api = LeakbotApiClient("wrong", "creds", leakbot_session)
     with pytest.raises(LeakbotApiClientAuthenticationError):
         await api.login()
 
 
-async def test_login_pass(
-    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
-):
+async def test_login_pass(leakbot_api_client: LeakbotApiClient):
     """Test API Login Success."""
-    session = await aiohttp_client(leakbot_api)
-    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+    result = await leakbot_api_client.login()
 
-    result = await api.login()
-    assert api.is_connected
+    assert leakbot_api_client.is_connected
     assert result["token"]
     assert result["tenant_id"]
 
 
-async def test_token_error(
-    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
-):
+async def test_token_error(leakbot_api_client: LeakbotApiClient):
     """Test the API Token Error."""
-    session = await aiohttp_client(leakbot_api)
-    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
-
-    result = await api.login()
-    assert api.is_connected
+    result = await leakbot_api_client.login()
+    assert leakbot_api_client.is_connected
     assert result["token"]
     assert result["tenant_id"]
 
-    api._token = "INVALID"
+    leakbot_api_client._token = "INVALID"
     with pytest.raises(LeakbotApiClientTokenError):
-        await api.get_device_list()
+        await leakbot_api_client.get_device_list()
 
 
-async def test_device_list(
-    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
-):
+async def test_device_list(leakbot_api_client: LeakbotApiClient):
     """Test getting the device list."""
-    session = await aiohttp_client(leakbot_api)
-    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+    await leakbot_api_client.login()
+    assert leakbot_api_client.is_connected
 
-    await api.login()
-    assert api.is_connected
-
-    device_list = await api.get_device_list()
+    device_list = await leakbot_api_client.get_device_list()
     assert device_list
 
 
-async def test_account_myread(
-    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
-):
+async def test_account_myread(leakbot_api_client: LeakbotApiClient):
     """Test getting the account data."""
-    session = await aiohttp_client(leakbot_api)
-    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+    await leakbot_api_client.login()
+    assert leakbot_api_client.is_connected
 
-    await api.login()
-    assert api.is_connected
-
-    account_myread = await api.get_account_myread()
+    account_myread = await leakbot_api_client.get_account_myread()
     assert account_myread
 
 
-async def test_address_myread(
-    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
-):
+async def test_address_myread(leakbot_api_client: LeakbotApiClient):
     """Test getting the account data."""
-    session = await aiohttp_client(leakbot_api)
-    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+    await leakbot_api_client.login()
+    assert leakbot_api_client.is_connected
 
-    await api.login()
-    assert api.is_connected
-
-    address_myread = await api.get_address_myread()
+    address_myread = await leakbot_api_client.get_address_myread()
     assert address_myread
 
 
-async def test_tenant_myview(
-    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
-):
+async def test_tenant_myview(leakbot_api_client: LeakbotApiClient):
     """Test getting the account data."""
-    session = await aiohttp_client(leakbot_api)
-    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+    await leakbot_api_client.login()
+    assert leakbot_api_client.is_connected
 
-    await api.login()
-    assert api.is_connected
-
-    tenant = await api.get_tenant_myview()
+    tenant = await leakbot_api_client.get_tenant_myview()
     assert tenant
 
 
-async def test_device_myview(
-    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
-):
+async def test_device_myview(leakbot_api_client: LeakbotApiClient):
     """Test getting the device data."""
-    session = await aiohttp_client(leakbot_api)
-    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+    await leakbot_api_client.login()
+    assert leakbot_api_client.is_connected
 
-    await api.login()
-    assert api.is_connected
-
-    devices = await api.get_device_list()
+    devices = await leakbot_api_client.get_device_list()
     assert devices
 
     for device in devices["IDs"]:
-        device_data = await api.get_device_data(device["id"])
+        device_data = await leakbot_api_client.get_device_data(device["id"])
         assert device_data
 
 
-async def test_device_messages(
-    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
-):
+async def test_device_messages(leakbot_api_client: LeakbotApiClient):
     """Test getting the device mesages list."""
-    session = await aiohttp_client(leakbot_api)
-    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+    await leakbot_api_client.login()
+    assert leakbot_api_client.is_connected
 
-    await api.login()
-    assert api.is_connected
-
-    devices = await api.get_device_list()
+    devices = await leakbot_api_client.get_device_list()
     assert devices
 
     for device in devices["IDs"]:
-        device_data = await api.get_device_messages(device["id"])
+        device_data = await leakbot_api_client.get_device_messages(device["id"])
         assert device_data
 
 
-async def test_device_simpleeventlist(
-    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
-):
+async def test_device_simpleeventlist(leakbot_api_client: LeakbotApiClient):
     """Test getting the device simple event list."""
-    session = await aiohttp_client(leakbot_api)
-    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+    await leakbot_api_client.login()
+    assert leakbot_api_client.is_connected
 
-    await api.login()
-    assert api.is_connected
-
-    devices = await api.get_device_list()
+    devices = await leakbot_api_client.get_device_list()
     assert devices
 
     for device in devices["IDs"]:
-        device_data = await api.get_device_messages(device["id"])
+        device_data = await leakbot_api_client.get_device_messages(device["id"])
         assert device_data
 
         alert_msg = False
@@ -178,25 +126,20 @@ async def test_device_simpleeventlist(
 
         if alert_msg:
             starting_date = "2025-04-11 08:00:00"
-            event_data = await api.get_device_simple_event_list(
+            event_data = await leakbot_api_client.get_device_simple_event_list(
                 device["id"], starting_date
             )
             assert event_data
 
 
-async def test_device_waterusage(
-    leakbot_api: Application, aiohttp_client: ClientSessionGenerator
-):
+async def test_device_waterusage(leakbot_api_client: LeakbotApiClient):
     """Test getting the device water usage."""
-    session = await aiohttp_client(leakbot_api)
-    api = LeakbotApiClient(VALID_LOGIN["username"], VALID_LOGIN["password"], session)
+    await leakbot_api_client.login()
+    assert leakbot_api_client.is_connected
 
-    await api.login()
-    assert api.is_connected
-
-    devices = await api.get_device_list()
+    devices = await leakbot_api_client.get_device_list()
     assert devices
 
     for device in devices["IDs"]:
-        device_data = await api.get_device_water_usage(device["id"], 0)
+        device_data = await leakbot_api_client.get_device_water_usage(device["id"], 0)
         assert device_data

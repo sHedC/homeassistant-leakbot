@@ -20,15 +20,19 @@ async def test_form_success(hass: HomeAssistant):
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
+
+    assert "type" in result
+    assert "errors" in result
     assert result["type"] == data_entry_flow.FlowResultType.FORM
     assert result["errors"] == {}
 
     # Patch to bypass authentication and stop setup entry.
-    with patch(
-        "custom_components.leakbot.config_flow.LeakbotFlowHandler._test_credentials",
-        return_value={"token": "tokencode"},
-    ) as mock_authenticate, patch(
-        "custom_components.leakbot.async_setup_entry", return_value=False
+    with (
+        patch(
+            "custom_components.leakbot.config_flow.LeakbotFlowHandler._test_credentials",
+            return_value={"token": "tokencode"},
+        ) as mock_authenticate,
+        patch("custom_components.leakbot.async_setup_entry", return_value=False),
     ):
         setup_result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
@@ -36,11 +40,14 @@ async def test_form_success(hass: HomeAssistant):
         )
         await hass.async_block_till_done()
 
+    assert "type" in setup_result
+    assert "title" in setup_result
     assert setup_result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
     assert setup_result["title"] == "user.name"
 
     assert len(mock_authenticate.mock_calls) == 1
 
+    assert "data" in setup_result
     assert setup_result["data"][CONF_PASSWORD] == "hash"
     assert setup_result["data"][CONF_USERNAME] == "user.name"
 
@@ -50,6 +57,9 @@ async def test_form_invalid_auth(hass: HomeAssistant):
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
+
+    assert "type" in result
+    assert "errors" in result
     assert result["type"] == data_entry_flow.FlowResultType.FORM
     assert result["errors"] == {}
 
@@ -66,7 +76,11 @@ async def test_form_invalid_auth(hass: HomeAssistant):
         )
         await hass.async_block_till_done()
 
+    assert "type" in setup_result
+    assert "errors" in setup_result
+
     assert setup_result["type"] == data_entry_flow.FlowResultType.FORM
+    assert setup_result["errors"] is not None
     assert setup_result["errors"]["base"] == "auth"
 
     assert len(mock_authenticate.mock_calls) == 1
@@ -92,19 +106,27 @@ async def test_form_reauth(hass: HomeAssistant):
         },
         data=entry.data,
     )
+
+    assert "type" in result
+    assert "errors" in result
     assert result["type"] == data_entry_flow.FlowResultType.FORM
     assert result["errors"] == {}
 
     # Patch to bypass authentication and stop setup entry.
-    with patch(
-        "custom_components.leakbot.config_flow.LeakbotFlowHandler._test_credentials",
-        return_value={"token": "tokencode"},
-    ), patch("custom_components.leakbot.async_setup_entry", return_value=False):
+    with (
+        patch(
+            "custom_components.leakbot.config_flow.LeakbotFlowHandler._test_credentials",
+            return_value={"token": "tokencode"},
+        ),
+        patch("custom_components.leakbot.async_setup_entry", return_value=False),
+    ):
         result2 = await hass.config_entries.flow.async_configure(
             result["flow_id"],
             {CONF_PASSWORD: "hash"},
         )
         await hass.async_block_till_done()
 
+    assert "type" in result2
+    assert "reason" in result2
     assert result2["type"] == "abort"
     assert result2["reason"] == "reauth_successful"
