@@ -110,4 +110,4 @@ async def test_leak_free_days_missing(
     # Check Leak Free days on good and bad data.
     state = hass.states.get("sensor.leakbot_5abcdeg_leak_free_days")
     assert state is not None
-    assert state in (STATE_UNAVAILABLE, STATE_UNKNOWN)
+    assert state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN)
