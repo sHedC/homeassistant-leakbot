@@ -7,6 +7,14 @@
             "id": "123456",
             "leakbotId": "5ABCDEF",
             "tenant_id": "123"
+        },
+        {
+            "device_status": "Leak Inactive",
+            "device_type": "WIFILeakBotV3",
+            "fw_version": "3.30",
+            "id": "234567",
+            "leakbotId": "5ABCDEG",
+            "tenant_id": "123"
         }
     ],
     "ts": 1708408077913,

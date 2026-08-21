@@ -137,6 +137,20 @@ class LeakbotSensor(LeakbotEntity, SensorEntity):
         self.entity_description: LeakbotSensorEntityDescription = entity_description
 
     @property
+    def available(self) -> bool:
+        """Checks the Keys and data to make sure things are available."""
+        sub_data = self.get_device_data
+
+        if self.entity_description.lookup_keys:
+            try:
+                for sub_key in self.entity_description.lookup_keys.split("."):
+                    sub_data = sub_data[sub_key]
+            except Exception:
+                return False
+
+        return self._attr_available
+
+    @property
     def native_value(self) -> StateType | date | datetime | Decimal:
         """Return the native value of the sensor."""
         sub_data = self.get_device_data

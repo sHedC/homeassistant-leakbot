@@ -5,7 +5,7 @@ import pytest
 
 from aiohttp.web import Application
 
-from homeassistant.const import Platform
+from homeassistant.const import Platform, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -35,10 +35,6 @@ async def test_sensor_setup(
     entry = MockConfigEntry(domain=DOMAIN, data=VALID_LOGIN)
     entry.add_to_hass(hass)
 
-    # hass.data.setdefault(DOMAIN, {})
-    # coordinator = LeakbotDataUpdateCoordinator(hass, api, entry.entry_id)
-    # hass.data[DOMAIN][entry.entry_id] = coordinator
-
     with patch(
         "custom_components.leakbot.async_get_clientsession",
         return_value=session,
@@ -60,10 +56,58 @@ async def test_sensor_setup(
     assert state.state == "2025-04-11T02:16:26+00:00"
 
 
-async def test_missing_sensor(
+async def test_leak_free_days_found(
     hass: HomeAssistant,
     leakbot_api: Application,
     aiohttp_client: ClientSessionGenerator,
 ):
-    """Test Sensors where data is missing."""
-    pass
+    """Test Sensor for Leak Free Days."""
+    session = await aiohttp_client(leakbot_api)
+    entry = MockConfigEntry(domain=DOMAIN, data=VALID_LOGIN)
+    entry.add_to_hass(hass)
+
+    with patch(
+        "custom_components.leakbot.async_get_clientsession",
+        return_value=session,
+    ):
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    # Check we called the Mock and we have a Sensor.
+    assert hass.states.async_entity_ids_count(Platform.SENSOR) > 0, (
+        "Sensors Failed to Create"
+    )
+
+    # Check Leak Free Days Status on good data.
+    state = hass.states.get("sensor.leakbot_5abcdef_leak_free_days")
+    assert state is not None
+    assert state.state == "722"
+
+
+async def test_leak_free_days_missing(
+    hass: HomeAssistant,
+    leakbot_api: Application,
+    aiohttp_client: ClientSessionGenerator,
+):
+    """Test Sensor for Leak Free Days where data is missing."""
+    """Test Sensor for Leak Free Days."""
+    session = await aiohttp_client(leakbot_api)
+    entry = MockConfigEntry(domain=DOMAIN, data=VALID_LOGIN)
+    entry.add_to_hass(hass)
+
+    with patch(
+        "custom_components.leakbot.async_get_clientsession",
+        return_value=session,
+    ):
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    # Check we called the Mock and we have a Sensor.
+    assert hass.states.async_entity_ids_count(Platform.SENSOR) > 0, (
+        "Sensors Failed to Create"
+    )
+
+    # Check Leak Free days on good and bad data.
+    state = hass.states.get("sensor.leakbot_5abcdeg_leak_free_days")
+    assert state is not None
+    assert state in (STATE_UNAVAILABLE, STATE_UNKNOWN)
