@@ -1,11 +1,12 @@
 """Leakbot Sensor Tests."""
 
+from datetime import datetime
 from unittest.mock import patch
 import pytest
 
 from aiohttp.web import Application
 
-from homeassistant.const import Platform, STATE_UNAVAILABLE, STATE_UNKNOWN
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -110,4 +111,9 @@ async def test_leak_free_days_missing(
     # Check Leak Free days on good and bad data.
     state = hass.states.get("sensor.leakbot_5abcdeg_leak_free_days")
     assert state is not None
-    assert state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN)
+
+    no_days = (
+        datetime.now().date()
+        - datetime.strptime("2022-02-16 16:39:23", "%Y-%m-%d %H:%M:%S").date()
+    ).days - 1
+    assert state.state == str(no_days)

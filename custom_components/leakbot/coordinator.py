@@ -131,7 +131,7 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                 ).replace(tzinfo=UTC)
             )
             if event.get("derived_event_closed") == "null":
-                cal_end_date = cal_start_date + timedelta(minutes=30)
+                cal_end_date = cal_start_date
             else:
                 cal_end_date = dt.as_local(
                     datetime.strptime(
@@ -223,6 +223,39 @@ class LeakbotDataUpdateCoordinator(DataUpdateCoordinator):
                 # Update Events
                 async with self._calendar_lock:
                     await self._async_update_events(device_id, device)
+
+                # Check we have a leak_count_summary, if not guess it.
+                if "leak_count_summary" not in device["info"]:
+                    dev_calendar: Calendar = device.get("calendar", Calendar())
+
+                    # Get first event in the calendar, if it exists, and use that to guess the leak_count_summary.
+                    if dev_calendar.events:
+                        today = datetime.now().date()
+                        event = dev_calendar.events[-1]
+                        install_days = (today - event.start_datetime.date()).days - 1
+                        leak_free_days = install_days
+
+                        # Commenting out as assuming if there is a leak assuming the Summary will appear.
+                        # last_leak = next(
+                        #    (e for e in dev_calendar.events if e.summary == "LeakTrue"),
+                        #    None,
+                        # )
+                        # if last_leak is not None:
+                        #    if (
+                        #        last_leak.start_datetime.date()
+                        #        == last_leak.end_datetime.date()
+                        #    ):
+                        #        leak_free_days = 0
+                        #    else:
+                        #        leak_free_days = (
+                        #            today - last_leak.start_datetime.date()
+                        #        ).days - 1
+
+                        device["info"]["leak_count_summary"] = {
+                            "leak_free_days": str(leak_free_days),
+                            "fix_leak_days": "0",
+                            "paused": "0",
+                        }
 
             return result_data
         except LeakbotApiClientError as exception:

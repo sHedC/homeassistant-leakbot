@@ -8,6 +8,51 @@
             "derived_event_created": "2025-04-11 02:18:05",
             "derived_event_id": "4142204",
             "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "2022-03-13 13:58:12",
+            "crm_business_name": "FailedCustomerRepaired",
+            "derived_event_closed": "2022-03-19 13:10:18",
+            "derived_event_code": "LeakTrue",
+            "derived_event_created": "2022-02-27 15:31:44",
+            "derived_event_id": "1134600",
+            "interaction_flag": "CustomerRepaired,2022-03-06 19:36:46|FixMyself,2022-03-06 19:36:43|DrippingTap,2022-03-06 19:36:39|NoneOfThese,2022-03-06 19:36:33|CustomerRepaired,2022-02-27 20:55:49|FixMyself,2022-02-27 20:55:45|DrippingTap,2022-02-27 20:55:43|NoneOfThese,2022-02-27 20:55:38"
+        },
+        {
+            "crm_business_created": "2022-03-13 13:58:12",
+            "crm_business_name": "FailedCustomerRepaired",
+            "derived_event_closed": "2022-03-22 13:10:18",
+            "derived_event_code": "LeakTrue",
+            "derived_event_created": "2022-03-20 15:31:44",
+            "derived_event_id": "1134599",
+            "interaction_flag": "CustomerRepaired,2022-03-06 19:36:46|FixMyself,2022-03-06 19:36:43|DrippingTap,2022-03-06 19:36:39|NoneOfThese,2022-03-06 19:36:33|CustomerRepaired,2022-02-27 20:55:49|FixMyself,2022-02-27 20:55:45|DrippingTap,2022-02-27 20:55:43|NoneOfThese,2022-02-27 20:55:38"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "null",
+            "derived_event_code": "OnPipe",
+            "derived_event_created": "2022-02-16 16:39:45",
+            "derived_event_id": "1117555",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2023-04-17 20:47:05",
+            "derived_event_code": "HasSignal",
+            "derived_event_created": "2022-02-16 16:39:23",
+            "derived_event_id": "1117554",
+            "interaction_flag": "null"
+        },
+        {
+            "crm_business_created": "null",
+            "crm_business_name": "null",
+            "derived_event_closed": "2022-02-16 16:39:45",
+            "derived_event_code": "Registered",
+            "derived_event_created": "2022-02-16 16:39:23",
+            "derived_event_id": "1117553",
+            "interaction_flag": "null"
         }
     ],
     "ts": 1744353277242,
