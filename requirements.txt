@@ -3,7 +3,7 @@ homeassistant==2026.8.2
 pip>=26.2.1
 numpy==2.5.2
 bumpver>=2026.1132
-ruff==0.16.4
+ruff==0.16.5
 chardet==7.6.0
 debugpy==1.8.21
 zlib_ng==1.0.0
