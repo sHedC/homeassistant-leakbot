@@ -4,4 +4,4 @@ colorlog==6.12.0
 ruff==0.16.6
 chardet==7.6.0
 ical==14.2.0
-pytest-homeassistant-custom-component==0.13.363
+pytest-homeassistant-custom-component==0.13.364
