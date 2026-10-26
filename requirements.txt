@@ -4,7 +4,7 @@ pip>=26.2.1
 numpy==2.5.4
 bumpver>=2026.1132
 ruff==0.17.1
-chardet==7.6.0
+chardet==7.7.0
 debugpy==1.8.22
 zlib_ng==1.0.0
 isal==1.8.0
