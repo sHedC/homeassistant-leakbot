@@ -6,5 +6,5 @@ bumpver>=2026.1132
 ruff==0.17.3
 chardet==7.7.0
 debugpy==1.8.22
-zlib_ng==1.0.0
+zlib_ng==1.1.0
 isal==1.9.1
